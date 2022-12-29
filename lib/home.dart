@@ -1,5 +1,7 @@
 import 'dart:ffi';
 
+import 'package:fantasy_fitness/constants.dart';
+import 'package:fantasy_fitness/fitmoji.dart';
 import 'package:fantasy_fitness/main.dart';
 import 'package:flutter/material.dart';
 
@@ -14,21 +16,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Home',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
+  static final List<Widget> _widgetOptions = <Widget>[
+    const FitmojiPage(),
+    Container(),
+    Container(),
   ];
 
   void _onItemTapped(int index) {
@@ -40,42 +31,26 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // appBar: AppBar(
+      //   title: title[_selectedIndex],
+      // ),
       appBar: AppBar(
-          title: FutureBuilder(
-        future: supabase.from('users').select().single(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError ||
-              snapshot.connectionState == ConnectionState.waiting) {
-            return const Text('');
-          } else {
-            String name = snapshot.data['name'] as String;
-            int level = snapshot.data['level'] as int;
-            print(level);
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(name),
-                const SizedBox(width: 10),
-                Text('fit level:${level}'),
-              ],
-            );
-          }
-        },
-      )),
+        title: const Text('Fantasy Fitness'),
+      ),
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.run_circle),
+            label: 'FitMoji',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Business',
+            icon: Icon(Icons.group_work),
+            label: 'Challenge',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'School',
+            icon: Icon(Icons.store),
+            label: 'Store',
           ),
         ],
         currentIndex: _selectedIndex,
