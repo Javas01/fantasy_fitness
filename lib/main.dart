@@ -1,4 +1,5 @@
 import 'package:fantasy_fitness/auth_manager.dart';
+import 'package:fantasy_fitness/choose_goal.dart';
 import 'package:fantasy_fitness/constants.dart';
 import 'package:fantasy_fitness/home.dart';
 import 'package:fantasy_fitness/signin.dart';
@@ -16,16 +17,6 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-Future<String> getData() async {
-  try {
-    final data = await supabase.from('users').select().single();
-    return data['name'] as String;
-  } catch (e) {
-    print(e);
-    return '';
-  }
-}
-
 final supabase = Supabase.instance.client;
 
 class MyApp extends StatelessWidget {
@@ -38,7 +29,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.lightBlue,
       ),
       home: supabase.auth.currentUser?.id != null
-          ? const HomePage()
+          ? const ChooseGoal()
           : const SignInPage(),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:fantasy_fitness/main.dart';
 import 'package:flutter/material.dart';
 
@@ -11,77 +13,74 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle =
+      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text(
+      'Index 0: Home',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 1: Business',
+      style: optionStyle,
+    ),
+    Text(
+      'Index 2: School',
+      style: optionStyle,
+    ),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: FutureBuilder(
-          future: getData(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Text('');
-            } else {
-              return Text(snapshot.data ?? '');
-            }
-          },
-        ),
-      ),
-      body: ListView(
-        children: [
-          Row(
-            children: [
-              const Expanded(child: Center(child: Text('Challenge 1'))),
-              IconButton(
-                  onPressed: () {
-                    // _supabaseClient.isLoggedIn(context);
-                    getData();
-                  },
-                  icon: const Icon(Icons.arrow_forward))
-            ],
+          title: FutureBuilder(
+        future: supabase.from('users').select().single(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError ||
+              snapshot.connectionState == ConnectionState.waiting) {
+            return const Text('');
+          } else {
+            String name = snapshot.data['name'] as String;
+            int level = snapshot.data['level'] as int;
+            print(level);
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(name),
+                const SizedBox(width: 10),
+                Text('fit level:${level}'),
+              ],
+            );
+          }
+        },
+      )),
+      body: _widgetOptions.elementAt(_selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
-          Row(
-            children: [
-              const Expanded(child: Center(child: Text('Challenge 2'))),
-              IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.arrow_forward))
-            ],
+          BottomNavigationBarItem(
+            icon: Icon(Icons.business),
+            label: 'Business',
           ),
-          Row(
-            children: [
-              const Expanded(child: Center(child: Text('Challenge 3'))),
-              IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.arrow_forward))
-            ],
-          ),
-          Row(
-            children: [
-              const Expanded(child: Center(child: Text('Challenge 4'))),
-              IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.arrow_forward))
-            ],
-          ),
-          Row(
-            children: [
-              const Expanded(child: Center(child: Text('Challenge 5'))),
-              IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.arrow_forward))
-            ],
-          ),
-          Row(
-            children: [
-              const Expanded(child: Center(child: Text('Challenge 6'))),
-              IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.arrow_forward))
-            ],
-          ),
-          Row(
-            children: [
-              const Expanded(child: Center(child: Text('Challenge 7'))),
-              IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.arrow_forward))
-            ],
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school),
+            label: 'School',
           ),
         ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
       ),
     );
   }
