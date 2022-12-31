@@ -1,8 +1,5 @@
-import 'dart:ffi';
-
-import 'package:fantasy_fitness/constants.dart';
 import 'package:fantasy_fitness/fitmoji.dart';
-import 'package:fantasy_fitness/main.dart';
+import 'package:fantasy_fitness/settings.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,6 +17,7 @@ class _HomePageState extends State<HomePage> {
     const FitmojiPage(),
     Container(),
     Container(),
+    const SettingsPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -31,9 +29,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: title[_selectedIndex],
-      // ),
       appBar: AppBar(
         title: const Text('Fantasy Fitness'),
       ),
@@ -52,8 +47,13 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.store),
             label: 'Store',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
         ],
         currentIndex: _selectedIndex,
+        unselectedItemColor: Colors.blue,
         selectedItemColor: Colors.amber[800],
         onTap: _onItemTapped,
       ),
