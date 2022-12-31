@@ -20,6 +20,26 @@ extension ShowSnackBar on BuildContext {
   }
 }
 
+class Challenge {
+  String text;
+  ChallengeCategory category;
+  ChallengeType type;
+  bool isComplete;
+
+  Challenge({
+    required this.text,
+    required this.category,
+    required this.type,
+    required this.isComplete,
+  });
+}
+
+enum ChallengeType {
+  mile,
+}
+
+enum ChallengeCategory { running, biking, swimming }
+
 /// Environment variables and shared app constants.
 abstract class Constants {
   static const String supabaseUrl = 'https://ifmdrwaxqbrlpqtoznqn.supabase.co';

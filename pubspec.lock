@@ -64,20 +64,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
-  device_info:
+  device_info_plus:
     dependency: transitive
     description:
-      name: device_info
+      name: device_info_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.3"
-  device_info_platform_interface:
+    version: "8.0.0"
+  device_info_plus_platform_interface:
     dependency: transitive
     description:
-      name: device_info_platform_interface
+      name: device_info_plus_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.1"
+    version: "7.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -141,7 +141,7 @@ packages:
       name: health
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.6"
+    version: "4.4.0"
   hive:
     dependency: transitive
     description:
@@ -176,7 +176,7 @@ packages:
       name: intl
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.18.0"
+    version: "0.17.0"
   js:
     dependency: transitive
     description:

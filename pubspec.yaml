@@ -32,9 +32,9 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  intl: ^0.18.0
+  intl: ^0.17.0
   supabase_flutter: ^1.2.2
-  health: ^3.0.6
+  health: ^4.4.0
   permission_handler: ^10.2.0
 
 dev_dependencies:

@@ -1,7 +1,6 @@
 import 'package:fantasy_fitness/constants.dart';
+import 'package:fantasy_fitness/health_factory_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 class FitmojiPage extends StatefulWidget {
   const FitmojiPage({super.key});
@@ -11,6 +10,28 @@ class FitmojiPage extends StatefulWidget {
 }
 
 class _FitmojiPageState extends State<FitmojiPage> {
+  final healthFactory = HealthFactoryManager();
+  List<Challenge> challenges = [
+    Challenge(
+      text: 'Run a mile',
+      category: ChallengeCategory.running,
+      type: ChallengeType.mile,
+      isComplete: false,
+    ),
+    Challenge(
+      text: 'Swim a mile',
+      category: ChallengeCategory.swimming,
+      type: ChallengeType.mile,
+      isComplete: false,
+    ),
+    Challenge(
+      text: 'Bike a mile',
+      category: ChallengeCategory.biking,
+      type: ChallengeType.mile,
+      isComplete: false,
+    )
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -69,67 +90,41 @@ class _FitmojiPageState extends State<FitmojiPage> {
             textScaleFactor: 2,
           ),
           const SizedBox(
-            height: 40,
+            height: 20,
           ),
           Expanded(
             child: ListView(
-              children: [
-                Row(
-                  children: const [
-                    CircleAvatar(
-                      child: Icon(Icons.check),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text('Run a mile')
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  children: const [
-                    CircleAvatar(
-                      child: Icon(Icons.check),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text('bike a mile')
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  children: const [
-                    CircleAvatar(
-                      child: Icon(Icons.check),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text('swim a mile')
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  children: const [
-                    CircleAvatar(
-                      child: Icon(Icons.check),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Text('walk a mile')
-                  ],
-                ),
-              ],
+              children: challenges
+                  .map(
+                    (e) => DailyChallengeListItem(challenge: e),
+                  )
+                  .toList(),
             ),
           )
+        ],
+      ),
+    );
+  }
+}
+
+class DailyChallengeListItem extends StatelessWidget {
+  const DailyChallengeListItem({Key? key, required this.challenge})
+      : super(key: key);
+
+  final Challenge challenge;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+      child: Row(
+        children: [
+          CircleAvatar(
+            child: challenge.isComplete ? const Icon(Icons.check) : null,
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+          Text(challenge.text)
         ],
       ),
     );
