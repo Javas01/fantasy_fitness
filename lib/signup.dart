@@ -16,7 +16,6 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController smsController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -86,71 +85,26 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      // if (_formKey.currentState!.validate()) {
-                      //   try {
-                      //     AuthResponse authResponse =
-                      //         await widget.supabase.auth.signUp(
-                      //       phone: phoneController.text,
-                      //       password: passwordController.text,
-                      //     );
-                      //     // ignore: use_build_context_synchronously
-                      //     ScaffoldMessenger.of(context).showSnackBar(
-                      //       SnackBar(
-                      //         content: Text(authResponse.user?.id ?? 'Error'),
-                      //       ),
-                      //     );
-                      //   } catch (e) {
-                      //     ScaffoldMessenger.of(context).showSnackBar(
-                      //       SnackBar(
-                      //         content: Text(e.toString()),
-                      //       ),
-                      //     );
-                      //   }
-                      // } else {
-                      //   // ignore: use_build_context_synchronously
-                      //   ScaffoldMessenger.of(context).showSnackBar(
-                      //     const SnackBar(
-                      //       content: Text('Invalid input'),
-                      //     ),
-                      //   );
-                      // }
+                      if (!_formKey.currentState!.validate()) {
+                        _authManager.signUpUser(
+                          context,
+                          phone: phoneController.text,
+                          password: passwordController.text,
+                        );
+                      } else {
+                        // ignore: use_build_context_synchronously
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Invalid input'),
+                          ),
+                        );
+                      }
                     },
                     child: const Text('Create'),
                   )
                 ],
               ),
             ),
-            TextField(
-              controller: smsController,
-              decoration: const InputDecoration(
-                hintText: '123456',
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // try {
-                //   AuthResponse authResponse =
-                //       await widget.supabase.auth.verifyOTP(
-                //     phone: phoneController.text,
-                //     token: smsController.text,
-                //     type: OtpType.sms,
-                //   );
-                //   // ignore: use_build_context_synchronously
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(
-                //       content: Text(authResponse.user?.id ?? 'Error'),
-                //     ),
-                //   );
-                // } catch (e) {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(
-                //       content: Text(e.toString()),
-                //     ),
-                //   );
-                // }
-              },
-              child: const Text('Verify'),
-            )
           ],
         ),
       ),

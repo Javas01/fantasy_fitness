@@ -34,9 +34,10 @@ class _SignInPageState extends State<SignInPage> {
                 children: [
                   TextFormField(
                     controller: phoneController,
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.phone,
                     decoration: const InputDecoration(
-                      hintText: '+1 (123) 456-7890',
+                      hintText: '(123) 456-7890',
+                      prefixText: '+1 ',
                     ),
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
@@ -66,7 +67,8 @@ class _SignInPageState extends State<SignInPage> {
                       if (_formKey.currentState!.validate()) {
                         _authManager.signInUser(
                           context,
-                          phone: phoneController.text,
+                          // Assume all users have US phone numbers for now
+                          phone: '1${phoneController.text}',
                           password: passwordController.text,
                         );
                       } else {

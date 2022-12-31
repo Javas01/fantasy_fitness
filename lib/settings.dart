@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:fantasy_fitness/auth_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -75,23 +76,34 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  final _authManager = AuthManager();
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         children: [
-          IconButton(
-            icon: const Icon(Icons.height),
+          ElevatedButton(
+            child: const Text('Get Height'),
             onPressed: () {
               fetchHeightData();
             },
           ),
-          IconButton(
+          ElevatedButton(
             onPressed: () {
               fetchStepData();
             },
-            icon: const Icon(Icons.nordic_walking),
+            child: const Text('Get Steps'),
           ),
+          const Spacer(),
+          ElevatedButton(
+            onPressed: () {
+              _authManager.logOut(
+                context,
+              );
+            },
+            child: const Text('Log Out'),
+          )
         ],
       ),
     );
