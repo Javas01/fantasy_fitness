@@ -31,35 +31,36 @@ class _SignUpPageState extends State<SignUpPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  TextFormField(
-                    controller: firstNameController,
-                    decoration: const InputDecoration(
-                      hintText: 'First Name',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: lastNameController,
-                    decoration: const InputDecoration(
-                      hintText: 'Last Name',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
-                  ),
+                  // TextFormField(
+                  //   controller: firstNameController,
+                  //   decoration: const InputDecoration(
+                  //     hintText: 'First Name',
+                  //   ),
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please enter some text';
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
+                  // TextFormField(
+                  //   controller: lastNameController,
+                  //   decoration: const InputDecoration(
+                  //     hintText: 'Last Name',
+                  //   ),
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please enter some text';
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
                   TextFormField(
                     controller: phoneController,
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
-                      hintText: '+1 (123) 456-7890',
+                      hintText: '(123) 456-7890',
+                      prefixText: '+1 ',
                     ),
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
@@ -85,10 +86,10 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      if (!_formKey.currentState!.validate()) {
+                      if (_formKey.currentState!.validate()) {
                         _authManager.signUpUser(
                           context,
-                          phone: phoneController.text,
+                          phone: '1${phoneController.text}',
                           password: passwordController.text,
                         );
                       } else {

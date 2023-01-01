@@ -34,6 +34,7 @@ class _FitmojiPageState extends State<FitmojiPage> {
 
   @override
   Widget build(BuildContext context) {
+    healthFactory.fetchStepData();
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -47,19 +48,9 @@ class _FitmojiPageState extends State<FitmojiPage> {
               } else {
                 String name = snapshot.data['name'] as String;
                 int level = snapshot.data['level'] as int;
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      name,
-                      textScaleFactor: 2,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      '- FitLvl $level',
-                      textScaleFactor: 2,
-                    ),
-                  ],
+                return Text(
+                  '$name - FitLvl $level',
+                  textScaleFactor: 1.75,
                 );
               }
             },
@@ -76,8 +67,7 @@ class _FitmojiPageState extends State<FitmojiPage> {
           const SizedBox(
             height: 10,
           ),
-          // ignore: prefer_const_constructors
-          LinearProgressIndicator(
+          const LinearProgressIndicator(
             value: 0.1,
             minHeight: 30,
             semanticsLabel: 'Level up progress indicator',

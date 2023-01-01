@@ -1,26 +1,30 @@
 import 'package:health/health.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HealthFactoryManager {
+  HealthFactoryManager() {}
   HealthFactory health = HealthFactory();
 
   Future<List<HealthDataPoint>> fetchStepData() async {
     List<HealthDataPoint> steps;
 
     final now = DateTime.now();
+    await Permission.activityRecognition.request();
+    await Permission.locationWhenInUse.request();
 
-    bool requested = await health.requestAuthorization(
-        [HealthDataType.WORKOUT, HealthDataType.DISTANCE_WALKING_RUNNING]);
+    bool requested = await health.requestAuthorization([HealthDataType.STEPS]);
 
     if (requested) {
       try {
         steps = await health.getHealthDataFromTypes(
-          now.subtract(Duration(days: 300)),
+          now.subtract(const Duration(days: 30)),
           now,
           [
-            HealthDataType.WORKOUT,
-            HealthDataType.DISTANCE_WALKING_RUNNING,
+            HealthDataType.STEPS,
+            // HealthDataType.DISTANCE_WALKING_RUNNING,
           ],
         );
+        print(steps);
 
         return steps;
       } catch (error) {
@@ -44,7 +48,7 @@ class HealthFactoryManager {
     if (requested) {
       try {
         height = await health.getHealthDataFromTypes(
-          midnight.subtract(Duration(days: 10)),
+          midnight.subtract(const Duration(days: 10)),
           now,
           [HealthDataType.HEIGHT],
         );
