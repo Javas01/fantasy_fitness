@@ -1,59 +1,51 @@
+import 'package:fantasy_fitness/main.dart';
 import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HealthFactoryManager {
-  HealthFactoryManager() {}
   HealthFactory health = HealthFactory();
+  static List<HealthDataPoint> steps = [];
+  static List<HealthDataPoint> workouts = [];
+  static List<HealthDataPoint> sleep = [];
 
-  Future<List<HealthDataPoint>> fetchStepData() async {
-    List<HealthDataPoint> steps;
-
+  Future<void> fetchFitnessData() async {
+    Map data = await supabase
+        .from('users')
+        .select('last_opened')
+        .eq('id', supabase.auth.currentUser!.id)
+        .single();
+    String? lastOpened = data['last_opened'];
     final now = DateTime.now();
     await Permission.activityRecognition.request();
     await Permission.locationWhenInUse.request();
 
-    bool requested = await health.requestAuthorization([HealthDataType.STEPS]);
+    bool requested = await health.requestAuthorization(
+      [
+        HealthDataType.STEPS,
+        HealthDataType.SLEEP_ASLEEP,
+        HealthDataType.WORKOUT
+      ],
+    );
 
     if (requested) {
       try {
-        steps = await health.getHealthDataFromTypes(
-          now.subtract(const Duration(days: 30)),
+        List<HealthDataPoint> data = await health.getHealthDataFromTypes(
+          lastOpened != null
+              ? DateTime.parse(lastOpened)
+              : now.subtract(
+                  const Duration(days: 1),
+                ),
           now,
           [
+            HealthDataType.SLEEP_ASLEEP,
             HealthDataType.STEPS,
-            // HealthDataType.DISTANCE_WALKING_RUNNING,
+            HealthDataType.WORKOUT,
           ],
         );
-        print(steps);
-
-        return steps;
-      } catch (error) {
-        print('Caught error: $error');
-        return [];
-      }
-    } else {
-      print('Authorization not granted - error in authorization');
-      return [];
-    }
-  }
-
-  Future fetchHeightData() async {
-    List<HealthDataPoint> height;
-
-    final now = DateTime.now();
-    final midnight = DateTime(now.year, now.month, now.day);
-
-    bool requested = await health.requestAuthorization([HealthDataType.HEIGHT]);
-
-    if (requested) {
-      try {
-        height = await health.getHealthDataFromTypes(
-          midnight.subtract(const Duration(days: 10)),
-          now,
-          [HealthDataType.HEIGHT],
-        );
-
-        print(height.map((e) => e.value));
+        steps = data.where((e) => e.type == HealthDataType.STEPS).toList();
+        workouts = data.where((e) => e.type == HealthDataType.WORKOUT).toList();
+        sleep =
+            data.where((e) => e.type == HealthDataType.SLEEP_ASLEEP).toList();
       } catch (error) {
         print('Caught error: $error');
       }

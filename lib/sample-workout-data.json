@@ -1,0 +1,87 @@
+[
+  {
+    "value": {
+      "workoutActivityType": "HealthWorkoutActivityType.SOCCER",
+      "totalEnergyBurned": 100,
+      "totalEnergyBurnedUnit": "HealthDataUnit.KILOCALORIE",
+      "totalDistance": 3218,
+      "totalDistanceUnit": "HealthDataUnit.METER"
+    },
+    "data_type": "WORKOUT",
+    "unit": "NO_UNIT",
+    "date_from": "2023-01-01T13:13:00.000",
+    "date_to": "2023-01-01T14:13:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  },
+  {
+    "value": {
+      "workoutActivityType": "HealthWorkoutActivityType.PILATES",
+      "totalEnergyBurned": 200,
+      "totalEnergyBurnedUnit": "HealthDataUnit.KILOCALORIE",
+      "totalDistance": null,
+      "totalDistanceUnit": "HealthDataUnit.METER"
+    },
+    "data_type": "WORKOUT",
+    "unit": "NO_UNIT",
+    "date_from": "2023-01-01T13:45:00.000",
+    "date_to": "2023-01-01T13:51:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  },
+  {
+    "value": {
+      "workoutActivityType": "HealthWorkoutActivityType.TAI_CHI",
+      "totalEnergyBurned": 100,
+      "totalEnergyBurnedUnit": "HealthDataUnit.KILOCALORIE",
+      "totalDistance": null,
+      "totalDistanceUnit": "HealthDataUnit.METER"
+    },
+    "data_type": "WORKOUT",
+    "unit": "NO_UNIT",
+    "date_from": "2023-01-01T13:04:00.000",
+    "date_to": "2023-01-01T13:06:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  },
+  {
+    "value": {
+      "workoutActivityType": "HealthWorkoutActivityType.JUMP_ROPE",
+      "totalEnergyBurned": 150,
+      "totalEnergyBurnedUnit": "HealthDataUnit.KILOCALORIE",
+      "totalDistance": null,
+      "totalDistanceUnit": "HealthDataUnit.METER"
+    },
+    "data_type": "WORKOUT",
+    "unit": "NO_UNIT",
+    "date_from": "2022-12-31T08:08:00.000",
+    "date_to": "2022-12-31T09:08:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  },
+  {
+    "value": {
+      "workoutActivityType": "HealthWorkoutActivityType.RUNNING_TREADMILL",
+      "totalEnergyBurned": 100,
+      "totalEnergyBurnedUnit": "HealthDataUnit.KILOCALORIE",
+      "totalDistance": 1609,
+      "totalDistanceUnit": "HealthDataUnit.METER"
+    },
+    "data_type": "WORKOUT",
+    "unit": "NO_UNIT",
+    "date_from": "2022-12-31T08:20:00.000",
+    "date_to": "2022-12-31T08:20:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  }
+]

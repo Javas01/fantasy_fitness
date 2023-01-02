@@ -1,0 +1,24 @@
+[
+  {
+    "value": { "numericValue": 240.0 },
+    "data_type": "SLEEP_ASLEEP",
+    "unit": "MINUTE",
+    "date_from": "2023-01-01T15:14:00.000",
+    "date_to": "2023-01-01T19:14:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  },
+  {
+    "value": { "numericValue": 180.0 },
+    "data_type": "SLEEP_ASLEEP",
+    "unit": "MINUTE",
+    "date_from": "2022-12-29T15:15:00.000",
+    "date_to": "2022-12-29T18:15:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  }
+]

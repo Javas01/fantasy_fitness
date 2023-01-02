@@ -1,0 +1,54 @@
+[
+  {
+    "value": {
+      "numericValue": 1000
+    },
+    "data_type": "STEPS",
+    "unit": "COUNT",
+    "date_from": "2022-12-31T08:04:00.000",
+    "date_to": "2022-12-31T08:04:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  },
+  {
+    "value": {
+      "numericValue": 10
+    },
+    "data_type": "STEPS",
+    "unit": "COUNT",
+    "date_from": "2022-12-30T21:55:00.000",
+    "date_to": "2022-12-30T21:55:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  },
+  {
+    "value": {
+      "numericValue": 25
+    },
+    "data_type": "STEPS",
+    "unit": "COUNT",
+    "date_from": "2022-12-30T21:53:00.000",
+    "date_to": "2022-12-30T21:53:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  },
+  {
+    "value": {
+      "numericValue": 11
+    },
+    "data_type": "STEPS",
+    "unit": "COUNT",
+    "date_from": "2022-12-30T09:55:00.000",
+    "date_to": "2022-12-30T09:55:00.000",
+    "platform_type": "ios",
+    "device_id": "01E8BA0D-5AF4-413A-B570-472F4320C7CE",
+    "source_id": "com.apple.Health",
+    "source_name": "Health"
+  }
+]

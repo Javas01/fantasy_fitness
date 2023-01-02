@@ -1,5 +1,4 @@
 import 'package:fantasy_fitness/home.dart';
-import 'package:fantasy_fitness/main.dart';
 import 'package:flutter/material.dart';
 
 class ChooseGoal extends StatefulWidget {

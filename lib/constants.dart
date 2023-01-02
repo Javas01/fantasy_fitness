@@ -24,6 +24,7 @@ class Challenge {
   String text;
   ChallengeCategory category;
   ChallengeType type;
+  ChallengeDifficulty difficulty;
   bool isComplete;
 
   Challenge({
@@ -31,12 +32,15 @@ class Challenge {
     required this.category,
     required this.type,
     required this.isComplete,
+    required this.difficulty,
   });
 }
 
 enum ChallengeType {
   mile,
 }
+
+enum ChallengeDifficulty { easy, medium, hard, pro }
 
 enum ChallengeCategory { running, biking, swimming }
 
