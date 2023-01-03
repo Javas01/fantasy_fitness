@@ -47,29 +47,27 @@ class _HomePageState extends State<HomePage> {
           }
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+      bottomNavigationBar: NavigationBar(
+        destinations: const <NavigationDestination>[
+          NavigationDestination(
             icon: Icon(Icons.run_circle),
             label: 'FitMoji',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.group_work),
             label: 'Challenge',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.store),
             label: 'Store',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.settings),
             label: 'Settings',
           ),
         ],
-        currentIndex: _selectedIndex,
-        unselectedItemColor: Colors.blue,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onItemTapped,
       ),
     );
   }
