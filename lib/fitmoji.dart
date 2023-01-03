@@ -24,6 +24,32 @@ double healthDataToFitPoints(HealthDataPoint data) {
   }
 }
 
+int getCurrentLevel(points) {
+  if (points >= 0 && points < 100) {
+    return 1;
+  } else if (points >= 100 && points < 200) {
+    return 2;
+  } else if (points >= 200 && points < 300) {
+    return 3;
+  } else if (points >= 300 && points < 400) {
+    return 4;
+  } else if (points >= 400 && points < 500) {
+    return 5;
+  } else if (points >= 500 && points < 600) {
+    return 6;
+  } else if (points >= 600 && points < 700) {
+    return 7;
+  } else if (points >= 700 && points < 800) {
+    return 8;
+  } else if (points >= 800 && points < 900) {
+    return 9;
+  } else if (points >= 900) {
+    return 10;
+  } else {
+    return 0;
+  }
+}
+
 class _FitmojiPageState extends State<FitmojiPage> {
   final healthFactory = HealthFactoryManager();
   final _stream = supabase.from('users').stream(primaryKey: ['id']).eq(
@@ -203,6 +229,7 @@ class _FitmojiPageState extends State<FitmojiPage> {
             }
             String name = snapshot.data![0]['name'] as String;
             double fitPoints = snapshot.data![0]['fit_points'] as double;
+            int currLevel = getCurrentLevel(fitPoints);
 
             return Padding(
               padding: const EdgeInsets.all(20.0),
@@ -229,22 +256,33 @@ class _FitmojiPageState extends State<FitmojiPage> {
                     curve: Curves.easeInOut,
                     tween: Tween<double>(
                       begin: 0,
-                      end: fitPoints / 1000,
+                      end: fitPoints / pointsToLevelUp[currLevel],
                     ),
                     builder: (context, value, _) => Column(
                       children: [
-                        LinearProgressIndicator(
-                          value: value,
-                          minHeight: 30,
-                          semanticsLabel: 'Level up progress indicator',
-                        ),
+                        Stack(children: [
+                          LinearProgressIndicator(
+                            value: value,
+                            minHeight: 30,
+                            semanticsLabel: 'Level up progress indicator',
+                          ),
+                          Center(
+                            child: Text(
+                              'level $currLevel',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ]),
                         Align(
                           alignment: AlignmentGeometry.lerp(
                               const Alignment(-1.04, -1),
                               const Alignment(1.04, -1),
                               value) as AlignmentGeometry,
                           child: Text(
-                            '${fitPoints.toString()} / 1000',
+                            '${fitPoints.toString()} / ${pointsToLevelUp[currLevel]}',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                                 color: Colors.blue, fontSize: 12),

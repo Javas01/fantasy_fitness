@@ -40,6 +40,20 @@ enum ChallengeType {
   mile,
 }
 
+const pointsToLevelUp = [
+  100,
+  100,
+  200,
+  300,
+  400,
+  500,
+  600,
+  700,
+  800,
+  900,
+  1000
+];
+
 enum ChallengeDifficulty { easy, medium, hard, pro }
 
 enum ChallengeCategory { running, biking, swimming }
