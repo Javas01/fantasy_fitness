@@ -1,6 +1,6 @@
-import 'package:fantasy_fitness/choose_goal.dart';
+import 'package:fantasy_fitness/screens/choose_goal.dart';
 import 'package:fantasy_fitness/constants.dart';
-import 'package:fantasy_fitness/signin.dart';
+import 'package:fantasy_fitness/screens/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

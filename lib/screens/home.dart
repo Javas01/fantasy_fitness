@@ -1,6 +1,6 @@
-import 'package:fantasy_fitness/fitmoji.dart';
+import 'package:fantasy_fitness/screens/fitmoji.dart';
 import 'package:fantasy_fitness/health_factory_manager.dart';
-import 'package:fantasy_fitness/settings.dart';
+import 'package:fantasy_fitness/screens/settings.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {

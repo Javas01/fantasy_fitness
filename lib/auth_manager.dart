@@ -1,6 +1,6 @@
-import 'package:fantasy_fitness/home.dart';
-import 'package:fantasy_fitness/signin.dart';
-import 'package:fantasy_fitness/verify_otp.dart';
+import 'package:fantasy_fitness/screens/home.dart';
+import 'package:fantasy_fitness/screens/signin.dart';
+import 'package:fantasy_fitness/screens/verify_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

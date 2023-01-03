@@ -1,5 +1,5 @@
-import 'package:fantasy_fitness/signup.dart';
-import 'package:fantasy_fitness/subtext.dart';
+import 'package:fantasy_fitness/screens/signup.dart';
+import 'package:fantasy_fitness/components/subtext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fantasy_fitness/auth_manager.dart';
