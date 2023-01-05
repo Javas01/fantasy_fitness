@@ -12,7 +12,12 @@ class VerifyOTPPage extends StatefulWidget {
 class _VerifyOTPPageState extends State<VerifyOTPPage> {
   final _authManager = AuthManager();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController numberController = TextEditingController();
+  final TextEditingController number1Controller = TextEditingController();
+  final TextEditingController number2Controller = TextEditingController();
+  final TextEditingController number3Controller = TextEditingController();
+  final TextEditingController number4Controller = TextEditingController();
+  final TextEditingController number5Controller = TextEditingController();
+  final TextEditingController number6Controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -22,26 +27,40 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
       ),
       body: Form(
         key: _formKey,
+        onChanged: () {
+          String token = number1Controller.text +
+              number2Controller.text +
+              number3Controller.text +
+              number4Controller.text +
+              number5Controller.text +
+              number6Controller.text;
+
+          if (token.length == 6) {
+            _authManager.verifyOTPPage(
+              context,
+              phone: widget.phone,
+              token: token,
+            );
+          }
+        },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.filled(
-                6,
-                const SingleNumberTextField(),
-              ),
+              children: [
+                number1Controller,
+                number2Controller,
+                number3Controller,
+                number4Controller,
+                number5Controller,
+                number6Controller
+              ]
+                  .map(
+                    (e) => SingleNumberTextField(controller: e),
+                  )
+                  .toList(),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                _authManager.verifyOTPPage(
-                  context,
-                  phone: widget.phone,
-                  token: '',
-                );
-              },
-              child: const Text('Verify'),
-            )
           ],
         ),
       ),
@@ -52,7 +71,10 @@ class _VerifyOTPPageState extends State<VerifyOTPPage> {
 class SingleNumberTextField extends StatelessWidget {
   const SingleNumberTextField({
     Key? key,
+    required this.controller,
   }) : super(key: key);
+
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +85,8 @@ class SingleNumberTextField extends StatelessWidget {
         keyboardType: TextInputType.number,
         style: const TextStyle(fontSize: 20.0),
         textAlign: TextAlign.center,
+        controller: controller,
+        autofocus: true,
         maxLength: 1,
         decoration: const InputDecoration(
           counterText: '',
