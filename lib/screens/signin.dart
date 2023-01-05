@@ -1,8 +1,14 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:fantasy_fitness/screens/home.dart';
 import 'package:fantasy_fitness/screens/signup.dart';
 import 'package:fantasy_fitness/components/subtext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fantasy_fitness/auth_manager.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../constants.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -26,74 +32,98 @@ class _SignInPageState extends State<SignInPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
-                      hintText: '(123) 456-7890',
-                      prefixText: '+1 ',
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(
+                    Colors.black,
+                  ),
+                  foregroundColor: MaterialStatePropertyAll(
+                    Colors.white,
+                  ),
+                ),
+                onPressed: () async {
+                  try {
+                    bool authenticated = await supabase.auth.signInWithOAuth(
+                      Provider.apple,
+                      redirectTo:
+                          'com.Jawwaad.FantasyFitness://login-callback/',
+                    );
+                    if (authenticated) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomePage(),
+                        ),
+                        (route) => false,
+                      );
+                    }
+                  } on AuthException catch (e) {
+                    print(e.message);
+                  }
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(
+                      Icons.apple,
+                      size: 18,
                     ),
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    ],
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      hintText: 'password',
+                    SizedBox(
+                      width: 1,
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                      return null;
-                    },
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        _authManager.signInUser(
-                          context,
-                          // Assume all users have US phone numbers for now
-                          phone: '1${phoneController.text}',
-                          password: passwordController.text,
-                        );
-                      } else {
-                        // ignore: use_build_context_synchronously
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Invalid input'),
-                          ),
-                        );
-                      }
-                    },
-                    child: const Text('Sign In'),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  const RegistrationSubtext(
-                    text: "Don't have an account yet? ",
-                    linkText: 'Signup',
-                    screen: SignUpPage(),
-                  ),
-                ],
+                    Text('Sign In With Apple'),
+                  ],
+                ),
               ),
-            ),
-          ],
+              ElevatedButton(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(
+                    Colors.white,
+                  ),
+                  foregroundColor: MaterialStatePropertyAll(Colors.black),
+                ),
+                onPressed: () async {
+                  try {
+                    bool authenticated = await supabase.auth.signInWithOAuth(
+                      Provider.google,
+                      redirectTo:
+                          'com.Jawwaad.FantasyFitness://login-callback/',
+                    );
+                    if (authenticated) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomePage(),
+                        ),
+                        (route) => false,
+                      );
+                    }
+                  } on AuthException catch (e) {
+                    print(e.message);
+                  }
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: 18,
+                      child: Image.network(
+                          'http://pngimg.com/uploads/google/google_PNG19635.png',
+                          fit: BoxFit.cover),
+                    ),
+                    const SizedBox(
+                      width: 1,
+                    ),
+                    const Text('Sign In With Google'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

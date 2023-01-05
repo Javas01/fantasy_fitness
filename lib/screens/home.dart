@@ -54,6 +54,10 @@ class _HomePageState extends State<HomePage> {
             label: 'FitMoji',
           ),
           NavigationDestination(
+            icon: Icon(Icons.leaderboard),
+            label: 'Leaderboard',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.group_work),
             label: 'Challenge',
           ),

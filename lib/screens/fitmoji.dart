@@ -53,7 +53,7 @@ int getCurrentLevel(points) {
 class _FitmojiPageState extends State<FitmojiPage> {
   final healthFactory = HealthFactoryManager();
   final _stream = supabase.from('users').stream(primaryKey: ['id']).eq(
-      'id', Supabase.instance.client.auth.currentUser!.id);
+      'id', Supabase.instance.client.auth.currentUser?.id ?? '');
 
   List<Challenge> challenges = [
     Challenge(
@@ -82,7 +82,11 @@ class _FitmojiPageState extends State<FitmojiPage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: supabase.from('users').select().single(),
+      future: supabase
+          .from('users')
+          .select()
+          .eq('id', supabase.auth.currentUser?.id ?? '')
+          .single(),
       builder: (context, snapshot) {
         if (snapshot.hasError ||
             snapshot.connectionState == ConnectionState.waiting) {
@@ -91,7 +95,7 @@ class _FitmojiPageState extends State<FitmojiPage> {
           double fitPoints = snapshot.data['fit_points'] as double;
 
           Future.delayed(
-            const Duration(seconds: 3),
+            const Duration(milliseconds: 10),
             () {
               double total = HealthFactoryManager.steps.fold(
                     0.0,
@@ -227,7 +231,7 @@ class _FitmojiPageState extends State<FitmojiPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text('Getting data');
             }
-            String name = snapshot.data![0]['name'] as String;
+            String name = snapshot.data![0]['user_name'] as String;
             double fitPoints = snapshot.data![0]['fit_points'] as double;
             int currLevel = getCurrentLevel(fitPoints);
 
@@ -236,7 +240,7 @@ class _FitmojiPageState extends State<FitmojiPage> {
               child: Column(
                 children: [
                   Text(
-                    name,
+                    supabase.auth.currentUser?.userMetadata?['name'] ?? '',
                     textScaleFactor: 1.75,
                   ),
                   const SizedBox(

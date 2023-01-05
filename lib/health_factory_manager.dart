@@ -1,6 +1,6 @@
-import 'package:fantasy_fitness/main.dart';
 import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'constants.dart';
 
 class HealthFactoryManager {
   HealthFactory health = HealthFactory();
@@ -9,10 +9,13 @@ class HealthFactoryManager {
   static List<HealthDataPoint> sleep = [];
 
   Future<void> fetchFitnessData() async {
+    if (supabase.auth.currentUser == null) {
+      return;
+    }
     Map data = await supabase
         .from('users')
         .select('last_opened')
-        .eq('id', supabase.auth.currentUser!.id)
+        .eq('id', supabase.auth.currentUser?.id ?? '')
         .single();
     String? lastOpened = data['last_opened'];
     final now = DateTime.now();

@@ -15,12 +15,12 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-final supabase = Supabase.instance.client;
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+    print(supabase.auth.currentSession);
+    print(supabase.auth.currentUser);
     return MaterialApp(
       title: 'Fantasy Fitness',
       theme: ThemeData(
