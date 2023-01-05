@@ -1,5 +1,6 @@
 import 'package:fantasy_fitness/screens/fitmoji.dart';
 import 'package:fantasy_fitness/health_factory_manager.dart';
+import 'package:fantasy_fitness/screens/leaderboard.dart';
 import 'package:fantasy_fitness/screens/settings.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
     const FitmojiPage(),
+    const LeaderboardPage(),
     Container(),
     Container(),
     const SettingsPage(),
