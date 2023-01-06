@@ -93,134 +93,163 @@ class _FitmojiPageState extends State<FitmojiPage> {
           return const Text('');
         } else {
           double fitPoints = snapshot.data['fit_points'] as double;
+          if (HealthFactoryManager.allData.isNotEmpty) {
+            Future.delayed(
+              const Duration(milliseconds: 10),
+              () {
+                double total = HealthFactoryManager.steps.fold(
+                      0.0,
+                      (value, element) =>
+                          value + healthDataToFitPoints(element),
+                    ) +
+                    HealthFactoryManager.workouts.fold(
+                      0.0,
+                      (value, element) =>
+                          value + healthDataToFitPoints(element),
+                    ) +
+                    HealthFactoryManager.sleep.fold(
+                      0.0,
+                      (value, element) =>
+                          value + healthDataToFitPoints(element),
+                    );
 
-          Future.delayed(
-            const Duration(milliseconds: 10),
-            () {
-              double total = HealthFactoryManager.steps.fold(
-                    0.0,
-                    (value, element) => value + healthDataToFitPoints(element),
-                  ) +
-                  HealthFactoryManager.workouts.fold(
-                    0.0,
-                    (value, element) => value + healthDataToFitPoints(element),
-                  ) +
-                  HealthFactoryManager.sleep.fold(
-                    0.0,
-                    (value, element) => value + healthDataToFitPoints(element),
-                  );
-
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) => AlertDialog(
-                  title: Column(
-                    children: [
-                      const Text('Fitpoints summary'),
-                      Text('Total points = $total points'),
-                    ],
-                  ),
-                  content: Column(
-                    children: [
-                      Text(
-                        'Steps = ${HealthFactoryManager.steps.fold(0.0, (value, element) => value + healthDataToFitPoints(element))} points',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                      Column(
-                        children: HealthFactoryManager.steps
-                            .map(
-                              (e) => Row(
-                                children: [
-                                  Text(
-                                    '${e.value}= ${healthDataToFitPoints(e)} points',
-                                  ),
-                                ],
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      const SizedBox(height: 25),
-                      Text(
-                        'Workouts = ${HealthFactoryManager.workouts.fold(0.0, (value, element) => value + healthDataToFitPoints(element))} points',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                      Column(
-                        children: HealthFactoryManager.workouts
-                            .map(
-                              (e) => Column(
-                                children: [
-                                  Text(
-                                    '${(e.value as WorkoutHealthValue).workoutActivityType.toString().substring(26)} = ${healthDataToFitPoints(e)} points',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Calories Burned: ${(e.value as WorkoutHealthValue).totalEnergyBurned}',
-                                  ),
-                                  (e.value as WorkoutHealthValue)
-                                              .totalDistance !=
-                                          null
-                                      ? Text(
-                                          'Distance: ${(e.value as WorkoutHealthValue).totalDistance}',
-                                        )
-                                      : const Text('No distance Avaliable'),
-                                ],
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      const SizedBox(height: 25),
-                      Text(
-                        'Sleep = ${HealthFactoryManager.sleep.fold(0.0, (value, element) => value + healthDataToFitPoints(element))} points',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                      Column(
-                        children: HealthFactoryManager.sleep
-                            .map(
-                              (e) => Row(
-                                children: [
-                                  Text(
-                                    '${e.value.toString()} = ${healthDataToFitPoints(e)} points',
-                                  ),
-                                ],
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () async {
-                        try {
-                          await supabase.from('users').update({
-                            'fit_points': fitPoints + total,
-                            'last_opened': DateTime.now().toIso8601String(),
-                          }).match({
-                            'id': Supabase.instance.client.auth.currentUser!.id,
-                          });
-                          Navigator.pop(context);
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
-                      child: const Text('Ok'),
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: Column(
+                      children: [
+                        const Text('Fitpoints summary'),
+                        Text('Total points = $total points'),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            },
-          );
+                    content: Column(
+                      children: [
+                        Text(
+                          'Steps = ${HealthFactoryManager.steps.fold(0.0, (value, element) => value + healthDataToFitPoints(element))} points',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                        Column(
+                          children: HealthFactoryManager.steps
+                              .map(
+                                (e) => Row(
+                                  children: [
+                                    Text(
+                                      '${e.value}= ${healthDataToFitPoints(e)} points',
+                                    ),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        const SizedBox(height: 25),
+                        Text(
+                          'Workouts = ${HealthFactoryManager.workouts.fold(0.0, (value, element) => value + healthDataToFitPoints(element))} points',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                        Column(
+                          children: HealthFactoryManager.workouts
+                              .map(
+                                (e) => Column(
+                                  children: [
+                                    Text(
+                                      '${(e.value as WorkoutHealthValue).workoutActivityType.toString().substring(26)} = ${healthDataToFitPoints(e)} points',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Calories Burned: ${(e.value as WorkoutHealthValue).totalEnergyBurned}',
+                                    ),
+                                    (e.value as WorkoutHealthValue)
+                                                .totalDistance !=
+                                            null
+                                        ? Text(
+                                            'Distance: ${(e.value as WorkoutHealthValue).totalDistance}',
+                                          )
+                                        : const Text('No distance Avaliable'),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        const SizedBox(height: 25),
+                        Text(
+                          'Sleep = ${HealthFactoryManager.sleep.fold(0.0, (value, element) => value + healthDataToFitPoints(element))} points',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                        Column(
+                          children: HealthFactoryManager.sleep
+                              .map(
+                                (e) => Row(
+                                  children: [
+                                    Text(
+                                      '${e.value.toString()} = ${healthDataToFitPoints(e)} points',
+                                    ),
+                                  ],
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            await supabase.from('users').update({
+                              'fit_points': fitPoints + total,
+                              'last_opened': DateTime.now().toIso8601String(),
+                            }).match({
+                              'id':
+                                  Supabase.instance.client.auth.currentUser!.id,
+                            });
+                            final dataToInsert = HealthFactoryManager.allData
+                                .map(
+                                  (healthData) => ({
+                                    'user_id': supabase.auth.currentUser?.id,
+                                    'value': healthData.value.toJson(),
+                                    'data_type': healthData.type.name,
+                                    'unit': healthData.unitString,
+                                    'date_from':
+                                        healthData.dateFrom.toIso8601String(),
+                                    'date_to':
+                                        healthData.dateTo.toIso8601String(),
+                                    'platform_type': healthData.platform.name,
+                                    'device_id': healthData.deviceId,
+                                    'source_id': healthData.sourceId,
+                                    'source_name': healthData.sourceName,
+                                  }),
+                                )
+                                .toList();
+                            print(dataToInsert);
+                            await supabase
+                                .from('fit_data')
+                                .insert(dataToInsert);
+
+                            Navigator.pop(context);
+                          } catch (e) {
+                            print(e);
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: const Text('Ok'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
         }
         return StreamBuilder(
           stream: _stream,

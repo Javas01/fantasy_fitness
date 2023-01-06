@@ -1,5 +1,5 @@
+import 'package:fantasy_fitness/constants.dart';
 import 'package:fantasy_fitness/screens/home.dart';
-import 'package:fantasy_fitness/screens/signin.dart';
 import 'package:fantasy_fitness/screens/verify_otp.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -97,15 +97,7 @@ class AuthManager {
 
   Future<void> logOut(context) async {
     try {
-      await Supabase.instance.client.auth.signOut();
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SignInPage(),
-        ),
-        (route) => false,
-      );
+      await supabase.auth.signOut();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

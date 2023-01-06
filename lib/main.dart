@@ -17,18 +17,46 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    print(supabase.auth.currentSession);
-    print(supabase.auth.currentUser);
     return MaterialApp(
       title: 'Fantasy Fitness',
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
       ),
-      home: supabase.auth.currentUser?.id != null
-          ? const ChooseGoal()
-          : const SignInPage(),
+      home: _getLandingPage(),
     );
   }
+}
+
+Widget _getLandingPage() {
+  return StreamBuilder(
+    stream: supabase.auth.onAuthStateChange,
+    builder: (context, snapshot) {
+      print('object');
+      if (snapshot.hasData) {
+        print('this ${snapshot.data}');
+        return FutureBuilder(
+          future: supabase
+              .from('users')
+              .select()
+              .eq('id', supabase.auth.currentUser?.id)
+              .single(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              print(snapshot.data);
+              return const ChooseGoal();
+            } else {
+              return const ChooseGoal();
+            }
+          },
+        );
+      } else {
+        print('this ${snapshot.data}');
+
+        return const SignInPage();
+      }
+    },
+  );
 }

@@ -4,6 +4,7 @@ import 'constants.dart';
 
 class HealthFactoryManager {
   HealthFactory health = HealthFactory();
+  static List<HealthDataPoint> allData = [];
   static List<HealthDataPoint> steps = [];
   static List<HealthDataPoint> workouts = [];
   static List<HealthDataPoint> sleep = [];
@@ -45,6 +46,7 @@ class HealthFactoryManager {
             HealthDataType.WORKOUT,
           ],
         );
+        allData = data;
         steps = data.where((e) => e.type == HealthDataType.STEPS).toList();
         workouts = data.where((e) => e.type == HealthDataType.WORKOUT).toList();
         sleep =

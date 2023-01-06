@@ -1,5 +1,6 @@
 import 'package:fantasy_fitness/screens/fitmoji.dart';
 import 'package:fantasy_fitness/health_factory_manager.dart';
+import 'package:fantasy_fitness/screens/history.dart';
 import 'package:fantasy_fitness/screens/leaderboard.dart';
 import 'package:fantasy_fitness/screens/settings.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
     const FitmojiPage(),
     const LeaderboardPage(),
     Container(),
-    Container(),
+    const HistoryPage(),
     const SettingsPage(),
   ];
 
@@ -64,8 +65,8 @@ class _HomePageState extends State<HomePage> {
             label: 'Challenge',
           ),
           NavigationDestination(
-            icon: Icon(Icons.store),
-            label: 'Store',
+            icon: Icon(Icons.history),
+            label: 'History',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings),

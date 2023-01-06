@@ -20,12 +20,12 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           const Spacer(),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               _authManager.logOut(
                 context,
               );
             },
-            child: const Text('Log Out'),
+            child: const Text('L og Out'),
           )
         ],
       ),
