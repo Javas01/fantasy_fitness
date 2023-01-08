@@ -214,31 +214,14 @@ class _FitmojiPageState extends State<FitmojiPage> {
                                   Supabase.instance.client.auth.currentUser!.id,
                             });
                             final dataToInsert = HealthFactoryManager.allData
-                                .map(
-                                  (healthData) => ({
-                                    'user_id': supabase.auth.currentUser?.id,
-                                    'value': healthData.value.toJson(),
-                                    'data_type': healthData.type.name,
-                                    'unit': healthData.unitString,
-                                    'date_from':
-                                        healthData.dateFrom.toIso8601String(),
-                                    'date_to':
-                                        healthData.dateTo.toIso8601String(),
-                                    'platform_type': healthData.platform.name,
-                                    'device_id': healthData.deviceId,
-                                    'source_id': healthData.sourceId,
-                                    'source_name': healthData.sourceName,
-                                  }),
-                                )
+                                .map((healthData) => healthData.toJson())
                                 .toList();
-                            print(dataToInsert);
                             await supabase
                                 .from('fit_data')
                                 .insert(dataToInsert);
 
                             Navigator.pop(context);
                           } catch (e) {
-                            print(e);
                             Navigator.pop(context);
                           }
                         },
@@ -260,7 +243,6 @@ class _FitmojiPageState extends State<FitmojiPage> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Text('Getting data');
             }
-            String name = snapshot.data![0]['user_name'] as String;
             double fitPoints = snapshot.data![0]['fit_points'] as double;
             int currLevel = getCurrentLevel(fitPoints);
 

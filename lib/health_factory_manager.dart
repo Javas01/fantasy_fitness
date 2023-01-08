@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:health/health.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'constants.dart';
@@ -52,10 +53,11 @@ class HealthFactoryManager {
         sleep =
             data.where((e) => e.type == HealthDataType.SLEEP_ASLEEP).toList();
       } catch (error) {
-        print('Caught error: $error');
+        throw Error();
       }
     } else {
-      print('Authorization not granted - error in authorization');
+      throw ErrorDescription(
+          'Authorization not granted - error in authorization');
     }
   }
 }

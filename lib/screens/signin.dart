@@ -1,6 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
-import 'package:fantasy_fitness/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -47,7 +44,9 @@ class _SignInPageState extends State<SignInPage> {
                           'com.Jawwaad.FantasyFitness://login-callback/',
                     );
                   } on AuthException catch (e) {
-                    print(e.message);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.message)),
+                    );
                   }
                 },
                 child: Row(
@@ -55,17 +54,23 @@ class _SignInPageState extends State<SignInPage> {
                   children: const [
                     Icon(
                       Icons.apple,
-                      size: 18,
+                      size: 30,
                     ),
                     SizedBox(
                       width: 1,
                     ),
-                    Text('Sign In With Apple'),
+                    Text(
+                      'Sign In With Apple',
+                      style: TextStyle(
+                        fontSize: 22,
+                      ),
+                    ),
                   ],
                 ),
               ),
               ElevatedButton(
                 style: const ButtonStyle(
+                  // minimumSize: MaterialStateProperty.all(const Size(100, 50)),
                   backgroundColor: MaterialStatePropertyAll(
                     Colors.white,
                   ),
@@ -79,14 +84,17 @@ class _SignInPageState extends State<SignInPage> {
                           'com.Jawwaad.FantasyFitness://login-callback/',
                     );
                   } on AuthException catch (e) {
-                    print(e.message);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.message)),
+                    );
                   }
                 },
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
-                      height: 18,
+                      height: 30,
+                      width: 30,
                       child: Image.network(
                         'http://pngimg.com/uploads/google/google_PNG19635.png',
                         fit: BoxFit.cover,
@@ -95,7 +103,12 @@ class _SignInPageState extends State<SignInPage> {
                     const SizedBox(
                       width: 1,
                     ),
-                    const Text('Sign In With Google'),
+                    const Text(
+                      'Sign In With Google',
+                      style: TextStyle(
+                        fontSize: 21,
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:fantasy_fitness/constants.dart';
+import 'package:fantasy_fitness/models/user.dart';
 import 'package:flutter/material.dart';
 
 class LeaderboardPage extends StatefulWidget {
@@ -11,10 +12,10 @@ class LeaderboardPage extends StatefulWidget {
 class _LeaderboardPageState extends State<LeaderboardPage> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List>(
+    return FutureBuilder(
       future: supabase
           .from('users')
-          .select<List>('id, fit_points, user_name')
+          .select<List>('fit_points, user_name')
           .order('fit_points'),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -27,16 +28,17 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
           });
           return Container();
         } else if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         } else {
+          final users = snapshot.data!.map((e) => User.fromJson(e));
           return ListView(
-            children: snapshot.data!
+            children: users
                 .map(
-                  (e) => ListTile(
+                  (user) => ListTile(
                     title: Text(
-                      e['user_name'],
+                      user.userName,
                     ),
-                    trailing: Text(e['fit_points'].toString()),
+                    trailing: Text(user.fitPoints.toString()),
                   ),
                 )
                 .toList(),

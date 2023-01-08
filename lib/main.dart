@@ -1,5 +1,5 @@
-import 'package:fantasy_fitness/screens/choose_goal.dart';
 import 'package:fantasy_fitness/constants.dart';
+import 'package:fantasy_fitness/screens/home.dart';
 import 'package:fantasy_fitness/screens/signin.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -34,9 +34,7 @@ Widget _getLandingPage() {
   return StreamBuilder(
     stream: supabase.auth.onAuthStateChange,
     builder: (context, snapshot) {
-      print('object');
       if (snapshot.hasData) {
-        print('this ${snapshot.data}');
         return FutureBuilder(
           future: supabase
               .from('users')
@@ -45,16 +43,13 @@ Widget _getLandingPage() {
               .single(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              print(snapshot.data);
-              return const ChooseGoal();
+              return const HomePage();
             } else {
-              return const ChooseGoal();
+              return const HomePage();
             }
           },
         );
       } else {
-        print('this ${snapshot.data}');
-
         return const SignInPage();
       }
     },

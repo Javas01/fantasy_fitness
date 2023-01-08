@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
         future: healthFactory.fetchFitnessData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return const Text('Error getting data');
           } else {

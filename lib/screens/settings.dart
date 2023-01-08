@@ -25,7 +25,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 context,
               );
             },
-            child: const Text('L og Out'),
+            child: const Text('Log Out'),
           )
         ],
       ),

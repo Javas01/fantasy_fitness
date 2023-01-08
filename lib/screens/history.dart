@@ -29,51 +29,51 @@ class _HistoryPageState extends State<HistoryPage> {
           });
           return Container();
         } else if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         } else {
-          final data = snapshot.data!.first;
+          final data = HealthDataPoint.fromJson(snapshot.data!.first);
 
           return ListView.builder(
             itemCount: snapshot.data!.length,
             prototypeItem: ListTile(
               title: Text(
-                data['data_type'],
+                data.typeString,
               ),
               trailing: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '${data['date_from']}',
+                    '${data.dateFrom}',
                   ),
                   Text(
-                    '${data['date_to']}',
+                    '${data.dateTo}',
                   ),
                 ],
               ),
               subtitle: Text(
-                data['value'].toString(),
+                data.value.toString(),
               ),
             ),
             itemBuilder: (BuildContext context, i) {
-              final data = snapshot.data![i];
+              final data = HealthDataPoint.fromJson(snapshot.data![i]);
 
               return ListTile(
                 title: Text(
-                  data['data_type'],
+                  data.typeString,
                 ),
                 trailing: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '${data['date_from']}',
+                      '${data.dateFrom}',
                     ),
                     Text(
-                      '${data['date_to']}',
+                      '${data.dateTo}',
                     ),
                   ],
                 ),
                 subtitle: Text(
-                  data['value'].toString(),
+                  data.value.toString(),
                 ),
               );
             },
