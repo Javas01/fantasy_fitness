@@ -1,3 +1,4 @@
+import 'package:fantasy_fitness/screens/create_challenge.dart';
 import 'package:fantasy_fitness/screens/fitmoji.dart';
 import 'package:fantasy_fitness/health_factory_manager.dart';
 import 'package:fantasy_fitness/screens/history.dart';
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   static final List<Widget> _widgetOptions = <Widget>[
     const FitmojiPage(),
     const LeaderboardPage(),
-    Container(),
+    const CreateChallengePage(),
     const HistoryPage(),
     const SettingsPage(),
   ];
@@ -51,6 +52,8 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       bottomNavigationBar: NavigationBar(
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+        height: 45,
         destinations: const <NavigationDestination>[
           NavigationDestination(
             icon: Icon(Icons.run_circle),

@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class CreateChallengePage extends StatefulWidget {
-  const CreateChallengePage(
-      {super.key, required this.title, this.restorationId});
+  const CreateChallengePage({super.key, this.restorationId});
 
-  final String title;
   final String? restorationId;
 
   @override
@@ -44,101 +42,91 @@ class _CreateChallengePageState extends State<CreateChallengePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Form(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  initialValue: 'Challenge Name',
+    return Center(
+      child: Form(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                initialValue: 'Challenge Name',
+              ),
+              const SizedBox(
+                height: 100,
+              ),
+              DropdownButtonFormField(
+                items: ['Running', 'Walking', 'Biking', 'Swimming', 'Hiking']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                hint: const Text('Activity'),
+                icon: const Icon(Icons.run_circle_outlined),
+                onChanged: (Object? value) {},
+              ),
+              DropdownButtonFormField(
+                items: ['100 meters', '500 meters', '1 mile', '2 miles']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                hint: const Text('Goal'),
+                icon: const Icon(Icons.gps_fixed_sharp),
+                onChanged: (Object? value) {},
+              ),
+              DropdownButtonFormField(
+                items: ['24 hours', '48 hours', '1 week', '2 weeks', '1 month']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                hint: const Text('Window'),
+                icon: const Icon(Icons.timer),
+                onChanged: (Object? value) {},
+              ),
+              DropdownButtonFormField(
+                items: ['1\$', '2\$', '5\$', '10\$', '25\$']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                icon: const Icon(Icons.attach_money_rounded),
+                hint: const Text('Cost'),
+                onChanged: (Object? value) {},
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Center(
+                child: Column(
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        _restorableDateRangePickerRouteFuture.present();
+                      },
+                      child: Text(
+                          '${_startDate.value != null ? DateFormat.yMEd().format(_startDate.value!) : ''} - ${_endDate.value != null ? DateFormat.yMEd().format(_endDate.value!) : ''}'),
+                    ),
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: const Text('Create'),
+                    )
+                  ],
                 ),
-                const SizedBox(
-                  height: 100,
-                ),
-                DropdownButtonFormField(
-                  items: ['Running', 'Walking', 'Biking', 'Swimming', 'Hiking']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  hint: const Text('Activity'),
-                  icon: const Icon(Icons.run_circle_outlined),
-                  onChanged: (Object? value) {},
-                ),
-                DropdownButtonFormField(
-                  items: ['100 meters', '500 meters', '1 mile', '2 miles']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  hint: const Text('Goal'),
-                  icon: const Icon(Icons.gps_fixed_sharp),
-                  onChanged: (Object? value) {},
-                ),
-                DropdownButtonFormField(
-                  items: [
-                    '24 hours',
-                    '48 hours',
-                    '1 week',
-                    '2 weeks',
-                    '1 month'
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  hint: const Text('Window'),
-                  icon: const Icon(Icons.timer),
-                  onChanged: (Object? value) {},
-                ),
-                DropdownButtonFormField(
-                  items: ['1\$', '2\$', '5\$', '10\$', '25\$']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  icon: const Icon(Icons.attach_money_rounded),
-                  hint: const Text('Cost'),
-                  onChanged: (Object? value) {},
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Center(
-                  child: Column(
-                    children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          _restorableDateRangePickerRouteFuture.present();
-                        },
-                        child: Text(
-                            '${_startDate.value != null ? DateFormat.yMEd().format(_startDate.value!) : ''} - ${_endDate.value != null ? DateFormat.yMEd().format(_endDate.value!) : ''}'),
-                      ),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: const Text('Create'),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

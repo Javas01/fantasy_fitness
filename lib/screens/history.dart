@@ -16,8 +16,9 @@ class _HistoryPageState extends State<HistoryPage> {
       future: supabase
           .from('fit_data')
           .select<List>()
-          .eq('user_id', currUser?.id ?? ''),
-      builder: (context, AsyncSnapshot<List> snapshot) {
+          .eq('user_id', currUser?.id ?? '')
+          .order('date_from'),
+      builder: (context, snapshot) {
         if (snapshot.hasError) {
           Future.delayed(const Duration(milliseconds: 100), () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -30,24 +31,49 @@ class _HistoryPageState extends State<HistoryPage> {
         } else if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else {
-          // List<HealthDataPoint> data = snapshot.data as List<HealthDataPoint>;
+          final data = snapshot.data!.first;
+
           return ListView.builder(
             itemCount: snapshot.data!.length,
             prototypeItem: ListTile(
               title: Text(
-                snapshot.data!.first['data_type'],
+                data['data_type'],
+              ),
+              trailing: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${data['date_from']}',
+                  ),
+                  Text(
+                    '${data['date_to']}',
+                  ),
+                ],
               ),
               subtitle: Text(
-                snapshot.data!.first['value'].toString(),
+                data['value'].toString(),
               ),
             ),
             itemBuilder: (BuildContext context, i) {
+              final data = snapshot.data![i];
+
               return ListTile(
                 title: Text(
-                  snapshot.data![i]['data_type'],
+                  data['data_type'],
+                ),
+                trailing: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${data['date_from']}',
+                    ),
+                    Text(
+                      '${data['date_to']}',
+                    ),
+                  ],
                 ),
                 subtitle: Text(
-                  snapshot.data![i]['value'].toString(),
+                  data['value'].toString(),
                 ),
               );
             },
