@@ -214,7 +214,12 @@ class _FitmojiPageState extends State<FitmojiPage> {
                                   Supabase.instance.client.auth.currentUser!.id,
                             });
                             final dataToInsert = HealthFactoryManager.allData
-                                .map((healthData) => healthData.toJson())
+                                .map(
+                                  (healthData) => ({
+                                    'user_id': currUser!.id,
+                                    ...healthData.toJson()
+                                  }),
+                                )
                                 .toList();
                             await supabase
                                 .from('fit_data')
