@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct FantasyFitnessApp: App {
+    @State private var isSignedIn = false
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -25,7 +27,11 @@ struct FantasyFitnessApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if isSignedIn {
+                ContentView()
+            } else {
+                LoginView(isSignedIn: $isSignedIn)
+            }
         }
         .modelContainer(sharedModelContainer)
     }
