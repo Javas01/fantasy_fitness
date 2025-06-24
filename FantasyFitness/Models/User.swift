@@ -14,11 +14,11 @@ struct TierInfo {
     let maxXP: Int
 }
 
-struct FFUser: Codable, Equatable {
+struct FFUser: Codable, Equatable, Identifiable {
     let id: UUID
     let name: String
     let email: String
-    let avatarName: String?
+    let avatarName: String
     let ffScore: Double
     let lastSync: Date?
     
@@ -36,7 +36,7 @@ extension FFUser {
         id: UUID(),
         name: "Demo User",
         email: "demo@example.com",
-        avatarName: nil,
+        avatarName: "avatar_0_0",
         ffScore: 0.0,
         lastSync: nil
     )

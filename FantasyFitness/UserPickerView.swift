@@ -112,7 +112,7 @@ struct UserGridView: View {
                         onSelect(user)
                     }) {
                         VStack(spacing: 6) {
-                            Image(user.avatarName?.isEmpty == false ? user.avatarName! : "avatar_0_0")
+                            Image(user.avatarName)
                                 .resizable()
                                 .frame(width: 60, height: 60)
                                 .clipShape(Circle())

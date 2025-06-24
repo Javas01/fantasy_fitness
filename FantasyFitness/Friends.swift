@@ -13,10 +13,6 @@ struct FriendsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Friends Activity")
-                    .font(.largeTitle.bold())
-                    .padding(.top)
-                
                 ForEach(activities) { activity in
                     FriendActivityRow(activity: activity)
                 }
@@ -25,12 +21,14 @@ struct FriendsView: View {
             }
             .padding()
         }
-        .navigationTitle("Friends")
-        .appBackground()
     }
 }
 
 var friendFeed: [FriendActivity] = [
+    FriendActivity(name: "Jay", avatarName: "avatar_0_0", action: "ran a mile", timestamp: "2025"),
+    FriendActivity(name: "Bob", avatarName: "avatar_0_2", action: "completed the Shape Up challenge", timestamp: "2025"),
+    FriendActivity(name: "Jay", avatarName: "avatar_0_0", action: "ran a mile", timestamp: "2025"),
+    FriendActivity(name: "Bob", avatarName: "avatar_0_2", action: "completed the Shape Up challenge", timestamp: "2025"),
     FriendActivity(name: "Jay", avatarName: "avatar_0_0", action: "ran a mile", timestamp: "2025"),
     FriendActivity(name: "Bob", avatarName: "avatar_0_2", action: "completed the Shape Up challenge", timestamp: "2025"),
     FriendActivity(name: "Jay", avatarName: "avatar_0_0", action: "ran a mile", timestamp: "2025"),

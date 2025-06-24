@@ -5,40 +5,38 @@
 //  Created by Jawwaad Sabree on 6/17/25.
 //
 
-// MARK: - Model
-
 import SwiftUI
-
-struct Player: Identifiable, Hashable {
-    let id: UUID = UUID()
-    let name: String
-    let points: Int
-    let avatarName: String
-    let rank: Int
-    let isTopThree: Bool
-}
+import PostgREST
 
 // MARK: - ViewModels
-
+@MainActor
 final class LeaderboardViewModel: ObservableObject {
-    @Published var players: [Player] = []
+    @Published var players: [FFUser] = []
     
     init() {
-        loadMockData()
+        Task {
+            await loadData()
+        }
     }
     
-    private func loadMockData() {
-        players = [
-            Player(name: "Amir", points: 1620, avatarName: "avatar_0_0", rank: 1, isTopThree: true),
-            Player(name: "Layl", points: 1485, avatarName: "avatar_0_1", rank: 2, isTopThree: true),
-            Player(name: "Zayd", points: 1390, avatarName: "avatar_0_2", rank: 3, isTopThree: true),
-            Player(name: "Noor", points: 1175, avatarName: "avatar_1_0", rank: 4, isTopThree: false),
-            Player(name: "Samir", points: 1100, avatarName: "avatar_1_1", rank: 5, isTopThree: false),
-            Player(name: "Hana", points: 1050, avatarName: "avatar_1_2", rank: 6, isTopThree: false),
-            Player(name: "Arjun", points: 980, avatarName: "avatar_2_0", rank: 7, isTopThree: false),
-            Player(name: "Jawwaada", points: 900, avatarName: "avatar_2_1", rank: 8, isTopThree: false),
-            Player(name: "Jawwaad", points: 900, avatarName: "avatar_2_2", rank: 9, isTopThree: false)
-        ]
+    func loadData() async {
+        do {
+            let response: PostgrestResponse<[FFUser]> = try await supabase
+                .from("users")
+                .select("*")
+                .order("ff_score", ascending: false)
+                .limit(50)
+                .execute()
+            
+            let fetchedPlayers = response.value
+            
+            DispatchQueue.main.async {
+                print(fetchedPlayers)
+                self.players = fetchedPlayers
+            }
+        } catch {
+            print("⚠️ Error loading leaderboard: \(error)")
+        }
     }
 }
 
@@ -63,14 +61,18 @@ struct LeaderboardView: View {
                 VStack(spacing: 20) {
                     Text("Leaderboard")
                         .font(.largeTitle.bold())
-                        .padding(.top, 12)
-                    TopThreePodiumView(players: viewModel.players.filter { $0.isTopThree })
+                        .padding(.bottom, 10)
+                    
+                    if viewModel.players.count >= 3 {
+                        TopThreePodiumView(players: Array(viewModel.players.prefix(3)))
+                    }
                     
                     ScrollView {
                         VStack(spacing: 16) {
-                            ForEach(viewModel.players.filter { !$0.isTopThree }) { player in
-                                UserRowView(player: player)
+                            ForEach(Array(viewModel.players.dropFirst(3).enumerated()), id: \.element.id) { i, player in
+                                UserRowView(player: player, rank: i + 4) // because top 3 were dropped
                             }
+                            FriendsView()
                         }
                         .padding(.horizontal)
                     }
@@ -81,37 +83,32 @@ struct LeaderboardView: View {
         }
     }
 }
-
+let fakeUser = FFUser(id: UUID(), name: "Bob", email: "", avatarName: "avatar_0_0", ffScore: 100, lastSync: nil)
 struct TopThreePodiumView: View {
-    let players: [Player] // assumes contains top 3 players
-    
+    let players: [FFUser] // assumes contains top 3 players
+
     var body: some View {
-        let first = players.first(where: { $0.rank == 1 })
-        let second = players.first(where: { $0.rank == 2 })
-        let third = players.first(where: { $0.rank == 3 })
+        let first = (players.indices.contains(0) ? players[0] : nil) ?? fakeUser
+        let second = (players.indices.contains(1) ? players[1] : nil) ?? fakeUser
+        let third = (players.indices.contains(2) ? players[2] : nil) ?? fakeUser
         
         HStack(alignment: .bottom, spacing: 16) {
-            if let second = second {
-                PodiumAvatar(player: second, size: 80, imageSize: 60, offsetY: 10, color: Color.gray.opacity(0.2))
-            }
-            if let first = first {
-                PodiumAvatar(player: first, size: 100, imageSize: 70, offsetY: -10, color: Color.yellow.opacity(0.3))
-                    .scaleEffect(1.1)
-            }
-            if let third = third {
-                PodiumAvatar(player: third, size: 80, imageSize: 60, offsetY: 10, color: Color.brown.opacity(0.6))
-            }
+            PodiumAvatar(player: second, size: 80, imageSize: 60, offsetY: 10, color: Color.gray.opacity(0.2), rank: 2)
+            PodiumAvatar(player: first, size: 100, imageSize: 70, offsetY: -10, color: Color.yellow.opacity(0.3), rank: 1)
+                .scaleEffect(1.1)
+            PodiumAvatar(player: third, size: 80, imageSize: 60, offsetY: 10, color: Color.brown.opacity(0.6), rank: 3)
         }
         .padding(.horizontal)
     }
 }
 
 struct PodiumAvatar: View {
-    let player: Player
+    let player: FFUser
     let size: CGFloat
     let imageSize: CGFloat
     let offsetY: CGFloat
     let color: Color
+    let rank: Int
     
     @State private var bounceOffset: CGFloat = -40
     
@@ -119,7 +116,7 @@ struct PodiumAvatar: View {
         VStack(spacing: 8) {
             ZStack {
                 // Crown floating separately above everything
-                if player.rank == 1 {
+                if rank == 1 {
                     VStack {
                         Image(systemName: "crown.fill")
                             .foregroundColor(.yellow)
@@ -137,7 +134,7 @@ struct PodiumAvatar: View {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(color)
                     .frame(width: size, height: size + 20)
-                    .shadow(color: .black.opacity(0.1), radius: player.rank == 1 ? 8 : 4)
+                    .shadow(color: .black.opacity(0.1), radius: rank == 1 ? 8 : 4)
                 
                 Image(player.avatarName)
                     .resizable()
@@ -145,13 +142,17 @@ struct PodiumAvatar: View {
                     .frame(width: imageSize, height: imageSize)
             }
             .onAppear {
-                if player.rank == 1 {
+                if rank == 1 {
                     bounceOffset = -35
                 }
             }
             
-            Text(player.name).bold()
-            Text("\(player.points) pts")
+            Text(player.name)
+                .bold()
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .frame(maxWidth: 100)
+            Text("\(player.ffScore, specifier: "%.1f") FF")
                 .font(.caption)
                 .foregroundColor(.gray)
         }
@@ -160,11 +161,12 @@ struct PodiumAvatar: View {
 }
 
 struct UserRowView: View {
-    let player: Player
+    let player: FFUser
+    let rank: Int
     
     var body: some View {
         HStack(spacing: 16) {
-            Text("#\(player.rank)")
+            Text("#\(rank)")
                 .font(.title3)
                 .frame(width: 40)
             
@@ -175,7 +177,7 @@ struct UserRowView: View {
             
             VStack(alignment: .leading) {
                 Text(player.name).bold()
-                Text("\(player.points) pts")
+                Text("\(player.ffScore.rounded()) pts")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
@@ -188,7 +190,6 @@ struct UserRowView: View {
 }
 
 // MARK: - Preview
-
 #Preview {
     LeaderboardView()
 }

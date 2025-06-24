@@ -7,12 +7,20 @@
 
 import SwiftUI
 import SwiftData
+import UserNotifications
 
 @main
 struct FantasyFitnessApp: App {
+    // this gives us access to our app delegate in SwiftUI
+    @UIApplicationDelegateAdaptor private var appDelegate: CustomAppDelegate
+    
     @StateObject private var appUser = AppUser(user: FFUser.placeholder)
     @StateObject private var healthManager = HealthManager()
     @State private var isSignedIn = false
+    
+    init() {
+        requestNotificationPermission()
+    }
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -26,12 +34,26 @@ struct FantasyFitnessApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+    
+    func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
+            if granted {
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            }
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
             RootView(isSignedIn: $isSignedIn)
                 .environmentObject(appUser)
                 .environmentObject(healthManager)
+                .onAppear(perform: {
+                    // this makes sure that we are setting the app to the app delegate as soon as the main view appears
+                    appDelegate.app = self
+                })
         }
         .modelContainer(sharedModelContainer)
     }
@@ -81,5 +103,29 @@ enum Haptics {
     static func warning() {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.warning)
+    }
+}
+
+func sendNotificationTokenToSupabase(token: String) async {
+    guard let userId = supabase.auth.currentUser?.id else {
+        print("User not logged in.")
+        return
+    }
+    
+    let newToken = await NewNotificationToken(
+        userId: userId,
+        token: token,
+        deviceInfo: UIDevice.current.name
+    )
+    
+    do {
+        let response = try await supabase
+            .from("notification_tokens")
+            .upsert(newToken, onConflict: "user_id,token")
+            .execute()
+        
+        print("✅ Token sent to Supabase: \(response)")
+    } catch {
+        print("❌ Error sending token to Supabase: \(error)")
     }
 }

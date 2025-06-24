@@ -109,7 +109,7 @@ struct HomeView: View {
                             
                             Spacer()
                             
-                            NavigationLink(destination: FriendsView()) {
+                            NavigationLink(destination: LeaderboardView()) {
                                 Image(systemName: "chevron.right")
                             }
                             .buttonStyle(PlainButtonStyle())
@@ -132,8 +132,6 @@ struct HomeView: View {
         }
         .appBackground()
         .onAppear {
-            print("wtf")
-            print(appUser.name)
             viewModel.loadActiveChallenges(for: appUser.id)
         }
     }

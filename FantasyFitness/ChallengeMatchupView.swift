@@ -204,7 +204,7 @@ struct PlayerRowView: View {
         
     var body: some View {
         if(alignLeft) {
-            Image(player.users.avatarName ?? "avatar_0_0")
+            Image(player.users.avatarName)
                 .resizable()
                 .frame(width: 40, height: 40)
         }
@@ -231,7 +231,7 @@ struct PlayerRowView: View {
                 .foregroundStyle(.orange)
         }
         if(!alignLeft) {
-            Image(player.users.avatarName ?? "avatar_0_0")
+            Image(player.users.avatarName)
                 .resizable()
                 .frame(width: 40, height: 40)
         }
