@@ -55,7 +55,6 @@ struct ContentView: View {
     private func loadSession() async {
 #if targetEnvironment(simulator)
         // Skip auth on Simulator:
-        isLoading = false
 #else
         do {
             let session = try await supabase.auth.session

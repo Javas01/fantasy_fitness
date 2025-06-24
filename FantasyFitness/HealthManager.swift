@@ -161,7 +161,7 @@ class HealthManager: ObservableObject {
                 
                 let fakeSample = HealthSample(
                     sampleId: UUID().uuidString,
-                    userId: self.appUser.id.uuidString,
+                    userId: appUser.id.uuidString,
                     quantityType: type.identifier,
                     distanceMeters: 500, // 1.5km
                     startTime: start,
@@ -171,7 +171,7 @@ class HealthManager: ObservableObject {
         
                 let fakeSampleTwo = HealthSample(
                     sampleId: UUID().uuidString,
-                    userId: self.appUser.id.uuidString,
+                    userId: appUser.id.uuidString,
                     quantityType: type.identifier,
                     distanceMeters: 200, // 1.5km
                     startTime: start,
