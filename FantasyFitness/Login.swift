@@ -51,7 +51,7 @@ private func handleAppleLogin(result: Result<ASAuthorization, Error>) {
                                 email: session.user.email ?? "",
                                 avatarName: "",
                                 ffScore: 0,
-                                lastSync: Calendar.current.date(byAdding: .hour, value: -24, to: Date())!
+                                lastSync: Calendar.current.date(byAdding: .hour, value: -24, to: .now)!
                             )
                             try await supabase.from("users").insert(newUser).execute()
                         } else {

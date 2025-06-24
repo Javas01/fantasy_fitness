@@ -17,17 +17,17 @@ struct FFEntry: TimelineEntry {
 
 struct FFProvider: TimelineProvider {
     func placeholder(in context: Context) -> FFEntry {
-        FFEntry(date: Date(), level: "Weekend Warrior", currentScore: 420, nextLevelScore: 500)
+        FFEntry(date: .now, level: "Weekend Warrior", currentScore: 420, nextLevelScore: 500)
     }
     
     func getSnapshot(in context: Context, completion: @escaping (FFEntry) -> ()) {
-        let entry = FFEntry(date: Date(), level: "Weekend Warrior", currentScore: 420, nextLevelScore: 500)
+        let entry = FFEntry(date: .now, level: "Weekend Warrior", currentScore: 420, nextLevelScore: 500)
         completion(entry)
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<FFEntry>) -> ()) {
         // Normally fetch from shared storage or network
-        let entry = FFEntry(date: Date(), level: "Weekend Warrior", currentScore: 420, nextLevelScore: 500)
+        let entry = FFEntry(date: .now, level: "Weekend Warrior", currentScore: 420, nextLevelScore: 500)
         let timeline = Timeline(entries: [entry], policy: .atEnd)
         completion(timeline)
     }
@@ -83,5 +83,5 @@ struct FantasyFitnessWidget: Widget {
 #Preview(as: .systemLarge) {
     FantasyFitnessWidget()
 } timeline: {
-    FFEntry(date: Date(), level: "Weekend Warrior", currentScore: 420, nextLevelScore: 500)
+    FFEntry(date: .now, level: "Weekend Warrior", currentScore: 420, nextLevelScore: 500)
 }

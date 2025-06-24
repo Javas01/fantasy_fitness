@@ -8,6 +8,12 @@
 import SwiftUI
 import PostgREST
 
+extension Double {
+    func format(_ format: String) -> String {
+        String(format: format, self)
+    }
+}
+
 struct UserPickerView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var appUser: AppUser
@@ -42,7 +48,8 @@ struct UserPickerView: View {
                         let newParticipant = ChallengeParticipantInsert(
                             challenge_id: challenge.id,
                             user_id: user.id,
-                            team: "b"
+                            team: "b",
+                            name: user.name
                         )
                         
                         try await supabase
@@ -74,7 +81,7 @@ struct UserPickerView: View {
                     let response: PostgrestResponse<[FFUser]> = try await supabase
                         .from("users")
                         .select()
-                        .notEquals("id", value: appUser.user.id.uuidString)
+                        .notEquals("id", value: appUser.id.uuidString)
                         .execute()
                     
                     self.allUsers = response.value
@@ -113,7 +120,7 @@ struct UserGridView: View {
                                 .fontWeight(.medium)
                                 .lineLimit(1)
                             
-                            Text("\(user.ffScore) pts")
+                            Text("\(user.ffScore.format("%.1f")) pts")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                         }
@@ -132,6 +139,7 @@ struct UserGridView: View {
 }
 
 #Preview {
-    UserPickerView(challenge: testChallenge)
-        .environmentObject(AppUser(user: placeholderUser))
+    PreviewWrapper {
+        UserPickerView(challenge: testChallenge)
+    }
 }

@@ -39,7 +39,7 @@ struct HomeView: View {
                         .frame(width: 100)
                         Spacer()
                         VStack(spacing: 12) {
-                            Image(/*appUser.user.avatarName ??*/ "avatar_0_0")
+                            Image(/*appUser.avatarName ??*/ "avatar_0_0")
                                 .resizable()
                                 .frame(width: 100, height: 100)
                             
@@ -66,10 +66,8 @@ struct HomeView: View {
                         }
                         .frame(width: 100)
                     }
-                    NavigationLink(destination: ScoreHistoryView()
-                        .environmentObject(appUser)
-                    ) {
-                        FFScoreProgressView(ffScore: appUser.user.ffScore)
+                    NavigationLink(destination: ScoreHistoryView()) {
+                        FFScoreProgressView(ffScore: appUser.ffScore)
                     }
                     // MARK: Daily Challenge Section
                     Text("Daily Bonus")
@@ -89,8 +87,8 @@ struct HomeView: View {
                             
                             Spacer()
                             
-                            NavigationLink(destination: AllChallengesView()
-                                .environmentObject(appUser)
+                            NavigationLink(
+                                destination: AllChallengesView()
                             ) {
                                 Image(systemName: "chevron.right")
                             }
@@ -123,49 +121,16 @@ struct HomeView: View {
                 }
                 .padding()
                 .sheet(isPresented: $showRecentActivity, content: {
-                    if (healthManager.recentSamples.isEmpty) {
-                        Text("No New Activity, Put your phone down")
-                            .font(.headline)
-                            .padding()
-                    } else {
-                        Text("New Activity:")
-                            .font(.headline)
-                            .padding()
-                        ScrollView {
-                            VStack(alignment: .leading, spacing: 16) {
-                                ForEach(healthManager.recentSamples) { sample in
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        let imperialDistance = convertToImperial(fromMeters: sample.distanceMeters)
-                                        Text(formattedDate(sample.startTime))
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
-                                        
-                                        HStack(alignment: .top) {
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text("🏃 \(displayDistance(miles: imperialDistance.miles, yards: imperialDistance.yards, feet: imperialDistance.feet))")
-                                                Text("⏱️ \(displayDuration(sample.durationSeconds))")
-                                            }
-                                            Spacer()
-                                            Text("+\(calculateFFScore(distanceMeters: sample.distanceMeters, durationSeconds: sample.durationSeconds)) FF")
-                                                .foregroundColor(.orange)
-                                                .font(.system(size: 18, weight: .bold, design: .rounded))
-                                                .padding(.leading, 8)
-                                        }
-                                    }
-                                    .padding()
-                                    .background(Color(.secondarySystemBackground))
-                                    .cornerRadius(12)
-                                    .frame(maxWidth: .infinity)
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
-                    }
+                    NewActivitySheet()
                 })
+        }
+        .refreshable {
+            await healthManager.syncAllHealthData()
+            Haptics.success()
         }
         .appBackground()
         .onAppear {
-            viewModel.loadActiveChallenges(for: appUser.user.id)
+            viewModel.loadActiveChallenges(for: appUser.id)
         }
     }
 }
@@ -210,94 +175,9 @@ class HomeViewModel: ObservableObject {
 
 // MARK: - Preview
 struct ContentView_Previews: PreviewProvider {
-    @StateObject var healthManager = HealthManager(appUser: placeholderUser)
-
     static var previews: some View {
-        HomeView()
-            .environmentObject(HealthManager(appUser: placeholderUser)) // This is the key line
-            .environmentObject(AppUser(user: placeholderUser))
-    }
-}
-
-// MARK: FFScoreProgressView
-struct FFScoreProgressView: View {
-    let ffScore: Int
-    @State private var animatedScore: Int = 0
-    @State private var animatedProgress: CGFloat = 0.0
-    
-    var body: some View {
-        let nextLevel = nextFF(currentScore: ffScore)
-//        let targetProgress = CGFloat(ffScore) / CGFloat(nextLevel)
-        
-        VStack {
-            ProgressView(value: animatedProgress)
-                .tint(.orange)
-                .shadow(color: .orange, radius: 4)
-                .frame(height: 10)
-            
-            Text("\(animatedScore) / \(nextLevel) FF")
-                .font(.footnote)
-                .foregroundColor(.gray)
-                .frame(maxWidth: .infinity)
+        PreviewWrapper {
+            HomeView()
         }
-        .onAppear {
-            // Reset before animating
-            animatedScore = 0
-            animatedProgress = 0.0
-            
-            // Animate score count
-            Timer.scheduledTimer(withTimeInterval: 0.075, repeats: true) { timer in
-                if animatedScore < ffScore {
-                    animatedScore += max(1, ffScore / 60)
-                } else {
-                    animatedScore = ffScore
-                    timer.invalidate()
-                }
-                
-                // Sync progress to score
-                animatedProgress = CGFloat(animatedScore) / CGFloat(nextLevel)
-            }
-        }
-    }
-}
-
-func nextFF(currentScore: Int) -> Int {
-    switch currentScore {
-        case 0..<50:
-            return 50
-        case 50..<150:
-            return 150
-        case 150..<300:
-            return 300
-        case 300..<500:
-            return 500
-        case 500..<750:
-            return 750
-        case 750..<1000:
-            return 1000
-        case 1000..<1400:
-            return 1400
-        case 1400..<1800:
-            return 1800
-        case 1800..<2300:
-            return 2300
-        case 2300..<3000:
-            return 3000
-        case 3000..<4000:
-            return 4000
-        case 4000..<5000:
-            return 5000
-        case 5000..<6000:
-            return 6000
-        case 6000..<7000:
-            return 7000
-        case 7000..<8000:
-            return 8000
-        case 8000..<9000:
-            return 9000
-        case 9000..<10000:
-            return 10000
-        default:
-            return 10000 // Maxed out
     }
 }

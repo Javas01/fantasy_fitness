@@ -8,43 +8,8 @@
 import SwiftUI
 import PostgREST
 
-let allChallenges: [Challenge] = [
-    Challenge(
-        id: UUID(),
-        size: 1,
-        challengeType: .week,
-        goal: 8,
-        startDate: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-        endDate: Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
-    ),
-    Challenge(
-        id: UUID(),
-        size: 1,
-        challengeType: .week,
-        goal: 8,
-        startDate: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-        endDate: Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
-    ),
-    Challenge(
-        id: UUID(),
-        size: 1,
-        challengeType: .week,
-        goal: 8,
-        startDate: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-        endDate: Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
-    ),
-    Challenge(
-        id: UUID(),
-        size: 1,
-        challengeType: .week,
-        goal: 8,
-        startDate: Calendar.current.date(byAdding: .day, value: -2, to: Date())!,
-        endDate: Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
-    ),
-]
-
 struct AllChallengesView: View {
-    @State private var challenges: [Challenge] = allChallenges
+    @State private var challenges: [Challenge] = []
     @State private var showCreateChallengeSheet = false
     @EnvironmentObject var appUser: AppUser
 
@@ -57,9 +22,7 @@ struct AllChallengesView: View {
                             .padding(.top)
                         
                         ForEach(challenges) { challenge in
-                            NavigationLink(destination: ChallengeMatchupView(challenge: challenge)
-                                .environmentObject(appUser)
-                            ) {
+                            NavigationLink(destination: ChallengeMatchupView(challenge: challenge)) {
                                 ChallengeCardView(
                                     challenge: challenge
                                 )
@@ -91,7 +54,6 @@ struct AllChallengesView: View {
                 .padding(.bottom, 12)
                 .sheet(isPresented: $showCreateChallengeSheet) {
                     CreateChallengeView()
-                        .environmentObject(appUser)
                 }
             }
         .navigationTitle("Challenges")
@@ -114,6 +76,7 @@ struct AllChallengesView: View {
 }
 
 #Preview {
-    AllChallengesView()
-        .environmentObject(AppUser(user: placeholderUser))
+    PreviewWrapper {
+        AllChallengesView()
+    }
 }

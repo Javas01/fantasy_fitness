@@ -32,13 +32,11 @@ extension View {
         self.modifier(AppBackgroundModifier())
     }
 }
-let placeholderUser = FFUser(id: UUID(uuidString: "d48fe750-b692-4f7a-a929-841b9de43b3e")!, name: "", email: "", avatarName: "", ffScore: 25, lastSync: nil)
 
 struct ContentView: View {
     @State private var healthManager: HealthManager? = nil
     @StateObject private var appUser = AppUser(user: placeholderUser) // placeholder until loaded
 
-    
     var body: some View {
         ZStack {
             if let manager = healthManager {
@@ -48,12 +46,17 @@ struct ContentView: View {
                         .environmentObject(appUser)
                 }
                 .onAppear {
-                    manager.fetchRecentRunningData()
+                    Task {
+                        await manager.syncAllHealthData()
+                    }
                 }
             } else {
                 ProgressView("Loading...")
                     .task {
                         do {
+#if targetEnvironment(simulator)
+                            healthManager = HealthManager(appUser: appUser)
+#else
                             let session = try await supabase.auth.session
                             let userId = session.user.id
                             
@@ -65,10 +68,10 @@ struct ContentView: View {
                                 .execute()
                             
                             if let user = response.value.first {
-                                print(user)
-                                appUser.user = user
-                                healthManager = HealthManager(appUser: user)
+                                appUser.update(with: user)
+                                healthManager = HealthManager(appUser: appUser)
                             }
+#endif
                         } catch {
                             print("❌ Failed to load session: \(error)")
                         }

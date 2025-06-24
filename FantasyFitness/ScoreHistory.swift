@@ -19,7 +19,8 @@ struct ScoreLog: Identifiable {
 struct ScoreHistoryView: View {
     @EnvironmentObject var healthManager: HealthManager
     @EnvironmentObject var appUser: AppUser
-    
+
+    @State private var healthData: [HealthSample] = []
     @State private var showScoringInfo = false
         
     var body: some View {
@@ -54,20 +55,58 @@ struct ScoreHistoryView: View {
             }
             
             // MARK: Total Score
-            Text("\(appUser.user.ffScore) FF")
+            Text("\(appUser.ffScore, specifier: "%.1f") FF")
                 .font(.system(size: 48, weight: .bold, design: .rounded))
                 .foregroundColor(.orange)
                 .padding(.bottom)
             
-            FFScoreProgressView(ffScore: appUser.user.ffScore)
+            FFScoreProgressView(ffScore: appUser.ffScore)
             
             Divider()
             
             // MARK: Scrollable Activity History
-            ActivityHistoryList()
+            ActivityHistoryList(
+                activities: healthData.map {
+                    LabeledHealthSample(sample: $0, name: nil)
+                }
+            )
         }
         .padding()
         .navigationTitle("Score History")
+        .onAppear {
+            Task {
+                do {
+#if targetEnvironment(simulator)
+                    DispatchQueue.main.async {
+                        self.healthData = [
+                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
+                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
+                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
+                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
+                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
+                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100)
+                        ]
+                    }
+#else
+                    let session = try await supabase.auth.session
+                    let userId = session.user.id
+                    
+                    let response: PostgrestResponse<[HealthSample]> = try await supabase
+                        .from("health_data")
+                        .select("*")
+                        .eq("user_id", value: userId)
+                        .order("end_time", ascending: false)
+                        .execute()
+                    
+                    DispatchQueue.main.async {
+                        self.healthData = response.value
+                    }
+#endif
+                } catch {
+                    print("❌ Error fetching health data: \(error)")
+                }
+            }
+        }
     }
 }
 
@@ -115,7 +154,7 @@ struct ScoringInfoView: View {
 
 // MARK: - Preview
 #Preview {
-    ScoreHistoryView()
-        .environmentObject(HealthManager(appUser: placeholderUser))
-        .environmentObject(AppUser(user: placeholderUser))
+    PreviewWrapper {
+        return ScoreHistoryView()
+    }
 }

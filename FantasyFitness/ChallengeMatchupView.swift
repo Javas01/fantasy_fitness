@@ -9,22 +9,79 @@ import SwiftUI
 import PostgREST
 import Supabase
 
+struct ChallengeParticipantSlim: Decodable {
+    let userId: UUID
+    let name: String
+    
+    enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case name
+    }
+}
+
 @MainActor
 class ChallengeMatchupViewModel: ObservableObject {
     @Published var teamA: FantasyTeam?
     @Published var teamB: FantasyTeam?
+    @Published var challengeActivities: [LabeledHealthSample] = []
     
     let challenge: Challenge
     
     init(challenge: Challenge) {
         self.challenge = challenge
-        Task { await fetchTeams() }
+        Task {
+            await fetchTeams()
+            await fetchLabeledHealthDataForChallenge()
+        }
+    }
+    
+    func fetchLabeledHealthDataForChallenge() async {
+        var labeledSamples: [LabeledHealthSample] = []
+        
+        do {
+            print(challenge.status)
+            guard challenge.status == .active else { return }
+            // 1. Fetch all participants (with name and user_id)
+            let participantResponse: PostgrestResponse<[ChallengeParticipantSlim]> = try await supabase
+                .from("challenge_participants")
+                .select("user_id, name")
+                .eq("challenge_id", value: challenge.id.uuidString)
+                .execute()
+            
+            let participants = participantResponse.value
+            let userIds = participants.map { $0.userId.uuidString.lowercased() }
+            let userIdToName = Dictionary(uniqueKeysWithValues: participants.map { ($0.userId.uuidString.lowercased(), $0.name) })
+            print(userIds)
+
+            // 2. Fetch all health samples within challenge range for those users
+            let sampleResponse: PostgrestResponse<[HealthSample]> = try await supabase
+                .from("health_data")
+                .select("*")
+                .in("user_id", values: userIds)
+                .gte("start_time", value: challenge.startDate)
+                .lte("end_time", value: challenge.endDate ?? .now)
+                .execute()
+            
+            let samples = sampleResponse.value
+            print(samples)
+            
+            // 3. Attach name to each sample
+            labeledSamples = samples.compactMap { sample -> LabeledHealthSample? in
+                guard let name = userIdToName[sample.userId] else { return nil }
+                return LabeledHealthSample(sample: sample, name: name)
+            }
+        } catch {
+            print("❌ Error fetching labeled health data: \(error)")
+        }
+        
+        print(labeledSamples)
+        
+        self.challengeActivities = labeledSamples
     }
     
     func fetchTeams() async {
         do {
-            print(challenge.id)
-            let participants: PostgrestResponse<[ChallengeParticipant]> = try await supabase
+            let participants: PostgrestResponse<[ChallengeParticipantJoinUsers]> = try await supabase
                 .from("challenge_participants")
                 .select("*, users(*)") // join users
                 .eq("challenge_id", value: challenge.id.uuidString)
@@ -35,29 +92,17 @@ class ChallengeMatchupViewModel: ObservableObject {
             
             self.teamA = FantasyTeam(
                 name: challenge.teamAName,
+                score: challenge.teamAScore,
                 projectedScore: teamA.map { Double($0.score) }.reduce(0, +),
-                players: teamA.map {
-                    FantasyPlayer(
-                        name: $0.users.name,
-                        title: /*$0.users.role ?? */"Athlete",
-                        avatarName: $0.users.avatarName ?? "avatar_0_0"
-                    )
-                }
+                players: teamA
             )
             
             self.teamB = FantasyTeam(
                 name: challenge.teamBName,
+                score: challenge.teamBScore,
                 projectedScore: teamB.map { Double($0.score) }.reduce(0, +),
-                players: teamB.map {
-                    FantasyPlayer(
-                        name: $0.users.name,
-                        title: /*$0.users.role ??*/ "Athlete",
-                        avatarName: $0.users.avatarName ?? "avatar_0_0"
-                    )
-                }
+                players: teamB
             )
-            print(teamA)
-            print(teamB)
         } catch {
             print("❌ Failed to load challenge participants: \(error)")
         }
@@ -85,14 +130,11 @@ struct ChallengeMatchupView: View {
                     teamScoreView(team: teamB)
                 }
                 
-                winProbabilityBar
-                
-                HStack {
-                    Text("Proj \(teamA.projectedScore, specifier: "%.1f")").font(.caption)
-                    Spacer()
-                    Text("Proj \(teamB.projectedScore, specifier: "%.1f")").font(.caption)
-                }
-                .padding(.horizontal)
+                ChallengeProgressView(
+                    challenge: challenge,
+                    teamAProjection: 200,
+                    teamBProjection: 300
+                )
                 
                 Divider()
                 
@@ -127,7 +169,9 @@ struct ChallengeMatchupView: View {
                 }
                 
                 Text("Scoring Log").font(.title)
-                ActivityHistoryList()
+                ActivityHistoryList(
+                    activities: viewModel.challengeActivities
+                )
             } else {
                 ProgressView("Loading match...")
             }
@@ -136,30 +180,18 @@ struct ChallengeMatchupView: View {
         .appBackground()
         .sheet(isPresented: $isSheetOpen) {
             UserPickerView(challenge: challenge)
-                .environmentObject(appUser)
         }
     }
     
     func teamScoreView(team: FantasyTeam) -> some View {
         VStack(spacing: 4) {
-            Text("0.0") // Replace with live score if needed
+            Text(String(format: "%.1f", team.score))
                 .font(.largeTitle.bold())
             Text(team.name)
                 .font(.caption)
                 .multilineTextAlignment(.center)
         }
         .frame(width: 100)
-    }
-    
-    var winProbabilityBar: some View {
-        HStack {
-            Text("48%").font(.caption)
-            ProgressView(value: 0.48)
-                .progressViewStyle(LinearProgressViewStyle(tint: .orange))
-                .frame(height: 8)
-            Text("52%").font(.caption)
-        }
-        .padding(.horizontal)
     }
 }
 
@@ -192,14 +224,21 @@ struct EmptyPlayerRowView: View {
 }
 
 struct PlayerRowView: View {
-    let player: FantasyPlayer
+    let player: ChallengeParticipantJoinUsers
     let alignLeft: Bool
-    
+        
     var body: some View {
         if(alignLeft) {
-            Image(player.avatarName)
+            Image(player.users.avatarName ?? "avatar_0_0")
                 .resizable()
                 .frame(width: 40, height: 40)
+        }
+        if !alignLeft {
+            Text("\(player.score, specifier: "%.1f")")
+                .font(.title)
+                .fontWeight(.semibold)
+                .foregroundStyle(.orange)
+            Spacer()
         }
         VStack(alignment: alignLeft ? .leading : .trailing, spacing: 4) {
             Text(player.name)
@@ -209,34 +248,41 @@ struct PlayerRowView: View {
                 .foregroundColor(.gray)
         }
         .frame(width: 80, alignment: alignLeft ? .leading : .trailing)
+        if alignLeft {
+            Spacer()
+            Text("\(player.score, specifier: "%.1f")")
+                .font(.title)
+                .fontWeight(.semibold)
+                .foregroundStyle(.orange)
+        }
         if(!alignLeft) {
-            Image(player.avatarName)
+            Image(player.users.avatarName ?? "avatar_0_0")
                 .resizable()
                 .frame(width: 40, height: 40)
         }
     }
     
     var playerDisplayInfo: String {
-        "\(player.title)"
+        "Athlete"
     }
 }
 
 struct FantasyTeam {
     let name: String
+    let score: Double
     let projectedScore: Double
-    let players: [FantasyPlayer]
+    let players: [ChallengeParticipantJoinUsers]
 }
 
-struct FantasyPlayer: Identifiable {
-    let id = UUID()
-    let name: String
-    let title: String
-    let avatarName: String
+struct LabeledHealthSample: Identifiable {
+    var id: String { sample.sampleId }
+    let sample: HealthSample
+    let name: String? // Optional
 }
-
 #Preview {
-    ChallengeMatchupView(
-        challenge: testChallenge
-    )
-    .environmentObject(AppUser(user: placeholderUser))
+    PreviewWrapper {
+        ChallengeMatchupView(
+            challenge: testChallenge
+        )
+    }
 }

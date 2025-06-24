@@ -10,7 +10,7 @@ import PostgREST
 
 func sampleUsers() -> [FFUser] {
     (1...6).map {
-        FFUser(id: UUID(), name: "User \($0)", email: "", avatarName: "avatar_0_0", ffScore: 50, lastSync: Date())
+        FFUser(id: UUID(), name: "User \($0)", email: "", avatarName: "avatar_0_0", ffScore: 50, lastSync: .now)
     }
 }
 
@@ -20,9 +20,9 @@ struct CreateChallengeView: View {
 
     @State private var allUsers: [FFUser] = []
     @State private var selectedSize: Int = 1
-    @State private var selectedScoring: String = "PPR"
+    @State private var selectedScoring: String = "Standard"
     @State private var selectedType: String = "Goal"
-    @State private var startDate = Date()
+    @State private var startDate = Date.now
     
     var body: some View {
         ScrollView {
@@ -54,8 +54,8 @@ struct CreateChallengeView: View {
                                 goal: selectedType.lowercased() == "goal" ? 1000 : nil,
                                 start_date: startDate,
                                 end_date: nil, // Optional: allow adding later
-                                created_by: appUser.user.id,
-                                team_a_name: appUser.user.name
+                                created_by: appUser.id,
+                                team_a_name: appUser.name
                             )
                             print(newChallenge)
 
@@ -74,7 +74,12 @@ struct CreateChallengeView: View {
                             let challengeId = insertedChallenge.id
                             
                             let participants: [ChallengeParticipantInsert] = [
-                                ChallengeParticipantInsert(challenge_id: challengeId, user_id: appUser.user.id, team: "a")
+                                ChallengeParticipantInsert(
+                                    challenge_id: challengeId,
+                                    user_id: appUser.id,
+                                    team: "a",
+                                    name: appUser.name
+                                )
                                 // Add more participants if needed
                             ]
                             try await supabase
@@ -157,9 +162,10 @@ struct SizePicker: View {
 }
 
 struct ScoringPicker: View {
-    let options = ["PPR", "Standard"]
+    let options = ["Standard", "PPR"]
     @Binding var selected: String
-    
+    @State private var showAlert = false
+
     func optionDescription(_ option: String) -> String {
         switch option {
             case "PPR": return "Get extra points per logged workout"
@@ -170,7 +176,13 @@ struct ScoringPicker: View {
     var body: some View {
         VStack(spacing: 12) {
             ForEach(options, id: \.self) { option in
-                Button(action: { selected = option }) {
+                Button(action: {
+                    if option != "Standard" {
+                        showAlert = true
+                    } else {
+                        selected = option
+                    }
+                }) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(option)
                             .font(.system(size: 16, weight: .semibold))
@@ -187,13 +199,17 @@ struct ScoringPicker: View {
                 .animation(.easeInOut(duration: 0.2), value: selected)
             }
         }
+        .alert("PPR Coming Soon", isPresented: $showAlert) {
+            Button("OK", role: .cancel) {}
+        }
     }
 }
 
 struct TypePicker: View {
     let options = ["Goal", "Week"]
     @Binding var selected: String
-    
+    @State private var showAlert = false
+
     func optionDescription(_ option: String) -> String {
         switch option {
             case "Goal": return "First team to target wins"
@@ -204,7 +220,13 @@ struct TypePicker: View {
     var body: some View {
         VStack(spacing: 12) {
             ForEach(options, id: \.self) { option in
-                Button(action: { selected = option }) {
+                Button(action: {
+                    if option != "Goal" {
+                        showAlert = true
+                    } else {
+                        selected = option
+                    }
+                }) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(option)
                             .font(.system(size: 16, weight: .semibold))
@@ -220,6 +242,9 @@ struct TypePicker: View {
                 .buttonStyle(.plain)
                 .animation(.easeInOut(duration: 0.2), value: selected)
             }
+        }
+        .alert("Week Challenges Coming Soon", isPresented: $showAlert) {
+            Button("OK", role: .cancel) {}
         }
     }
 }
@@ -244,13 +269,7 @@ struct ButtonText: View {
 }
 
 #Preview {
-    CreateChallengeView()
-        .environmentObject(AppUser(user: FFUser(
-            id: UUID(uuidString: "d48fe750-b692-4f7a-a929-841b9de43b3e")!,
-            name: "Jawwaad",
-            email: "preview@example.com",
-            avatarName: "avatar_0_0",
-            ffScore: 100,
-            lastSync: Date()
-        )))
+    PreviewWrapper {
+        CreateChallengeView()
+    }
 }
