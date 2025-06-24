@@ -55,7 +55,8 @@ struct CreateChallengeView: View {
                                 start_date: startDate,
                                 end_date: nil, // Optional: allow adding later
                                 created_by: appUser.id,
-                                team_a_name: appUser.name
+                                team_a_name: appUser.name,
+                                team_a_logo: appUser.avatarName
                             )
                             print(newChallenge)
 

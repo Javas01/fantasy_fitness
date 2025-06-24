@@ -60,7 +60,7 @@ struct UserPickerView: View {
                         
                         try await supabase
                             .from("challenges")
-                            .update(["team_b_name": user.name])
+                            .update(["team_b_name": user.name, "team_b_logo": user.avatarName])
                             .eq("id", value: challenge.id)
                             .execute()
                         print("✅ Updated Team B Name")
@@ -112,7 +112,8 @@ struct UserGridView: View {
                         onSelect(user)
                     }) {
                         VStack(spacing: 6) {
-                            Image(user.avatarName?.isEmpty == false ? user.avatarName! : "avatar_0_0")   .resizable()
+                            Image(user.avatarName?.isEmpty == false ? user.avatarName! : "avatar_0_0")
+                                .resizable()
                                 .frame(width: 60, height: 60)
                                 .clipShape(Circle())
                             

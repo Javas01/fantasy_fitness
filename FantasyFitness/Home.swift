@@ -39,7 +39,7 @@ struct HomeView: View {
                         .frame(width: 100)
                         Spacer()
                         VStack(spacing: 12) {
-                            Image(/*appUser.avatarName ??*/ "avatar_0_0")
+                            Image(appUser.avatarName?.isEmpty == false ? appUser.avatarName! : "avatar_0_0")
                                 .resizable()
                                 .frame(width: 100, height: 100)
                             

@@ -61,4 +61,5 @@ extension AppUser {
     var name: String { user.name }
     var email: String { user.email }
     var lastSync: Date? { user.lastSync }
+    var avatarName: String? { user.avatarName }
 }

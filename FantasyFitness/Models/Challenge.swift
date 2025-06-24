@@ -29,6 +29,8 @@ struct Challenge: Identifiable, Codable {
     var teamBName: String = "Team B"
     var teamAScore: Double = 0
     var teamBScore: Double = 0
+    var teamALogo: String = "avatar_0_0"
+    var teamBLogo: String = "avatar_0_1"
     var status: ChallengeStatus = .pending
     
     enum CodingKeys: String, CodingKey {
@@ -42,6 +44,8 @@ struct Challenge: Identifiable, Codable {
         case teamBName = "team_b_name"
         case teamAScore = "team_a_score"
         case teamBScore = "team_b_score"
+        case teamALogo = "team_a_logo"
+        case teamBLogo = "team_b_logo"
         case status
     }
 }
@@ -55,6 +59,7 @@ struct ChallengeInsert: Codable {
     let end_date: Date?
     let created_by: UUID
     let team_a_name: String?
+    let team_a_logo: String?
 }
 struct ChallengeParticipant: Codable {
     let userId: UUID

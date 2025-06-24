@@ -16,7 +16,7 @@ struct ChallengeCardView: View {
     var body: some View {
         VStack(spacing: 12) {
             HStack {
-                Image("avatar_0_0")
+                Image(challenge.teamALogo)
                     .resizable()
                     .frame(width: 55, height: 55)
                 VStack {
@@ -41,7 +41,7 @@ struct ChallengeCardView: View {
                         .font(.subheadline)
                         .foregroundColor(.primary)
                 }
-                Image("avatar_0_1")
+                Image(challenge.teamBLogo)
                     .resizable()
                     .frame(width: 55, height: 55)
             }
