@@ -4,9 +4,7 @@
 //
 //  Created by Jawwaad Sabree on 6/17/25.
 //
-
 import SwiftUI
-import SwiftData
 import PostgREST
 
 struct AppBackgroundModifier: ViewModifier {
@@ -33,61 +31,52 @@ extension View {
     }
 }
 
+@MainActor
 struct ContentView: View {
-    @State private var healthManager: HealthManager? = nil
-    @StateObject private var appUser = AppUser(user: placeholderUser) // placeholder until loaded
+    @EnvironmentObject var appUser: AppUser
+    @EnvironmentObject var healthManager: HealthManager
 
     var body: some View {
         ZStack {
-            if let manager = healthManager {
+            if appUser.email == FFUser.placeholder.email {
+                ProgressView("Loading…")
+                    .task { await loadSession() }  // ← kick off your login/database fetch
+            } else {
                 NavigationStack {
                     HomeView()
-                        .environmentObject(manager)
-                        .environmentObject(appUser)
                 }
-                .onAppear {
-                    Task {
-                        await manager.syncAllHealthData()
-                    }
-                }
-            } else {
-                ProgressView("Loading...")
-                    .task {
-                        do {
-#if targetEnvironment(simulator)
-                            healthManager = HealthManager(appUser: appUser)
-#else
-                            let session = try await supabase.auth.session
-                            let userId = session.user.id
-                            
-                            let response: PostgrestResponse<[FFUser]> = try await supabase
-                                .from("users")
-                                .select("*") // pull full row
-                                .eq("id", value: userId.uuidString)
-                                .limit(1)
-                                .execute()
-                            
-                            if let user = response.value.first {
-                                appUser.update(with: user)
-                                healthManager = HealthManager(appUser: appUser)
-                            }
-#endif
-                        } catch {
-                            print("❌ Failed to load session: \(error)")
-                        }
-                    }
+                .appBackground()
+                .task { await healthManager.syncAllHealthData(appUser: appUser) }
             }
         }
     }
-}
-struct LastSync: Decodable {
-    let lastSync: Date?
     
-    enum CodingKeys: String, CodingKey {
-        case lastSync = "last_sync"
+    /// Load the supabase session and pull down your real FFUser, then flip `isLoading` off.
+    private func loadSession() async {
+#if targetEnvironment(simulator)
+        // Skip auth on Simulator:
+        isLoading = false
+#else
+        do {
+            let session = try await supabase.auth.session
+            let userId   = session.user.id
+            
+            // Use `.single()` so you get back one row ⇒ `FFUser` instead of `[FFUser]`
+            let response: PostgrestResponse<FFUser> = try await supabase
+                .from("users")
+                .select("*")
+                .eq("id", value: userId.uuidString)
+                .single()
+                .execute()
+            
+             let fetchedUser = response.value
+            // Update on main thread:
+            DispatchQueue.main.async {
+                appUser.update(with: fetchedUser)
+            }
+        } catch {
+            print("❌ Failed to load session:", error)
+        }
+#endif
     }
-}
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }

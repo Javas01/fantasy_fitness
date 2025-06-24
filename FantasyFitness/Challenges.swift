@@ -22,13 +22,18 @@ struct AllChallengesView: View {
                             .padding(.top)
                         
                         ForEach(challenges) { challenge in
-                            NavigationLink(destination: ChallengeMatchupView(challenge: challenge)) {
+                            NavigationLink(destination: ChallengeMatchupView(challenge: challenge).environmentObject(appUser)) {
                                 ChallengeCardView(
                                     challenge: challenge
                                 )
                             }
                             .buttonStyle(DefaultButtonStyle())
                         }
+                    }
+                    .onAppear{
+                        print("f swift")
+                        print(appUser.name)
+                        print("f swift")
                     }
                     .padding()
                 }
@@ -54,6 +59,7 @@ struct AllChallengesView: View {
                 .padding(.bottom, 12)
                 .sheet(isPresented: $showCreateChallengeSheet) {
                     CreateChallengeView()
+                        .environmentObject(appUser)
                 }
             }
         .navigationTitle("Challenges")

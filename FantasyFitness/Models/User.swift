@@ -31,45 +31,34 @@ struct FFUser: Codable, Equatable {
         case lastSync = "last_sync"
     }
 }
-
+extension FFUser {
+    static let placeholder = FFUser(
+        id: UUID(),
+        name: "Demo User",
+        email: "demo@example.com",
+        avatarName: nil,
+        ffScore: 0.0,
+        lastSync: nil
+    )
+}
 class AppUser: ObservableObject {
-    @Published var id: UUID
-    @Published var name: String
-    @Published var email: String
-    @Published var avatarName: String?
-    @Published var ffScore: Double
-    @Published var lastSync: Date?
+    @Published var user: FFUser
     
     init(user: FFUser) {
-        self.id = user.id
-        self.name = user.name
-        self.email = user.email
-        self.avatarName = user.avatarName
-        self.ffScore = user.ffScore
-        self.lastSync = user.lastSync
+        self.user = user
     }
     
     func update(with newUser: FFUser) {
+        print(newUser)
         DispatchQueue.main.async {
-            self.id = newUser.id
-            self.name = newUser.name
-            self.email = newUser.email
-            self.avatarName = newUser.avatarName
-            self.ffScore = newUser.ffScore
-            self.lastSync = newUser.lastSync
+            self.user = newUser
         }
     }
-    
-    var asUser: FFUser {
-        FFUser(
-            id: self.id,
-            name: self.name,
-            email: self.email,
-            avatarName: self.avatarName,
-            ffScore: self.ffScore,
-            lastSync: self.lastSync
-        )
-    }
 }
-
-let placeholderUser = FFUser(id: UUID(uuidString: "d48fe750-b692-4f7a-a929-841b9de43b3e")!, name: "", email: "", avatarName: "", ffScore: 25, lastSync: nil)
+extension AppUser {
+    var id: UUID { user.id }
+    var ffScore: Double { user.ffScore }
+    var name: String { user.name }
+    var email: String { user.email }
+    var lastSync: Date? { user.lastSync }
+}

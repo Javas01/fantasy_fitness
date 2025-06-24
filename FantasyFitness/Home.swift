@@ -66,7 +66,7 @@ struct HomeView: View {
                         }
                         .frame(width: 100)
                     }
-                    NavigationLink(destination: ScoreHistoryView()) {
+                    NavigationLink(destination: ScoreHistoryView().environmentObject(appUser)) {
                         FFScoreProgressView(ffScore: appUser.ffScore)
                     }
                     // MARK: Daily Challenge Section
@@ -97,6 +97,7 @@ struct HomeView: View {
                         
                         ForEach(viewModel.activeChallenges.prefix(2)) { challenge in
                             ChallengeCardView(challenge: challenge)
+                                .environmentObject(appUser)
                         }
                     }
                     
@@ -122,20 +123,24 @@ struct HomeView: View {
                 .padding()
                 .sheet(isPresented: $showRecentActivity, content: {
                     NewActivitySheet()
+                        .environmentObject(healthManager)
                 })
         }
         .refreshable {
-            await healthManager.syncAllHealthData()
+            await healthManager.syncAllHealthData(appUser: appUser)
             Haptics.success()
         }
         .appBackground()
         .onAppear {
+            print("wtf")
+            print(appUser.name)
             viewModel.loadActiveChallenges(for: appUser.id)
         }
     }
 }
 
 // MARK: - HomeViewModel
+@MainActor
 class HomeViewModel: ObservableObject {
     @Published var tier = TierInfo(title: "Beach Bum", currentXP: 360, maxXP: 500)
     @Published var activeChallenges: [Challenge] = []
@@ -163,7 +168,9 @@ class HomeViewModel: ObservableObject {
                 }
                 
                 let wrappers = response.value
-                self.activeChallenges = wrappers.map { $0.challenge }
+                DispatchQueue.main.async {
+                    self.activeChallenges = wrappers.map { $0.challenge }
+                }
             } catch {
                 print("❌ Failed to load challenges: \(error)")
             }

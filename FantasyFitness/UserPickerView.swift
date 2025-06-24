@@ -76,6 +76,7 @@ struct UserPickerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .background(Color(.systemGroupedBackground))
         .onAppear {
+            print(appUser)
             Task {
                 do {
                     let response: PostgrestResponse<[FFUser]> = try await supabase

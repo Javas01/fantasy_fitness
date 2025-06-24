@@ -65,18 +65,13 @@ struct UpdateUserPayload: Codable {
 
 @MainActor
 class HealthManager: ObservableObject {
-    @ObservedObject var appUser: AppUser
     @Published var recentSamples: [HealthSample] = []
     let healthStore = HKHealthStore()
     
-    init(appUser: AppUser) {
-        self.appUser = appUser
-    }
-    
-    func syncAllHealthData() async {
+    func syncAllHealthData(appUser: AppUser) async {
         guard await requestAuthorization() else { return }
         
-        let allSamples = await fetchAllSupportedSamples()
+        let allSamples = await fetchAllSupportedSamples(appUser: appUser)
         guard !allSamples.isEmpty else { return }
         self.recentSamples.append(contentsOf: allSamples)
         
@@ -121,7 +116,7 @@ class HealthManager: ObservableObject {
             
             let activeChallenges = challengeResponse.value.compactMap { $0.challenges }
             for challenge in activeChallenges {
-                await self.updateScore(for: challenge, with: allSamples)
+                await self.updateScore(appUser: appUser, for: challenge, with: allSamples)
             }
             
         } catch {
@@ -142,11 +137,11 @@ class HealthManager: ObservableObject {
         }
     }
     
-    private func fetchAllSupportedSamples() async -> [HealthSample] {
+    private func fetchAllSupportedSamples(appUser: AppUser) async -> [HealthSample] {
         await withTaskGroup(of: [HealthSample].self) { group in
             for identifier in supportedTypes {
                 if let type = HKObjectType.quantityType(forIdentifier: identifier) {
-                    group.addTask { await self.fetchSamples(for: type) }
+                    group.addTask { await self.fetchSamples(appUser: appUser, for: type) }
                 }
             }
             var all: [HealthSample] = []
@@ -157,7 +152,7 @@ class HealthManager: ObservableObject {
         }
     }
     
-    private func fetchSamples(for type: HKQuantityType) async -> [HealthSample] {
+    private func fetchSamples(appUser: AppUser, for type: HKQuantityType) async -> [HealthSample] {
         #if targetEnvironment(simulator)
                 // Return fake samples for testing in the simulator
                 let now = Date()
@@ -186,8 +181,10 @@ class HealthManager: ObservableObject {
                 
         return [fakeSample, fakeSampleTwo]
         #else
-        await withCheckedContinuation { continuation in
-            let predicate = HKQuery.predicateForSamples(withStart: self.appUser.lastSync, end: .now, options: .strictEndDate)
+        let userId = appUser.id.uuidString
+        let lastSync = appUser.lastSync
+        return await withCheckedContinuation { continuation in
+            let predicate = HKQuery.predicateForSamples(withStart: lastSync, end: .now, options: .strictEndDate)
             let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
             
             let query = HKSampleQuery(sampleType: type, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sort]) { _, results, error in
@@ -200,7 +197,7 @@ class HealthManager: ObservableObject {
                 let samples = results.map { sample -> HealthSample in
                     HealthSample(
                         sampleId: sample.uuid.uuidString,
-                        userId: self.appUser.id.uuidString,
+                        userId: userId,
                         quantityType: type.identifier,
                         distanceMeters: sample.quantity.doubleValue(for: .meter()),
                         startTime: sample.startDate,
@@ -215,7 +212,7 @@ class HealthManager: ObservableObject {
         #endif
     }
     
-    private func updateScore(for challenge: Challenge, with samples: [HealthSample]) async {
+    private func updateScore(appUser: AppUser, for challenge: Challenge, with samples: [HealthSample]) async {
         let relevant = samples.filter {
             $0.startTime >= challenge.startDate && $0.endTime <= (challenge.endDate ?? .now)
         }

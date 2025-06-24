@@ -57,8 +57,6 @@ private func handleAppleLogin(result: Result<ASAuthorization, Error>) {
                         } else {
                             print("User already exists")
                         }
-                        
-                        
                     } catch {
                         print("Supabase login failed: \(error.localizedDescription)")
                     }

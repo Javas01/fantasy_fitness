@@ -180,6 +180,7 @@ struct ChallengeMatchupView: View {
         .appBackground()
         .sheet(isPresented: $isSheetOpen) {
             UserPickerView(challenge: challenge)
+                .environmentObject(appUser)
         }
     }
     
@@ -235,7 +236,7 @@ struct PlayerRowView: View {
         }
         if !alignLeft {
             Text("\(player.score, specifier: "%.1f")")
-                .font(.title)
+                .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundStyle(.orange)
             Spacer()
@@ -251,7 +252,7 @@ struct PlayerRowView: View {
         if alignLeft {
             Spacer()
             Text("\(player.score, specifier: "%.1f")")
-                .font(.title)
+                .font(.title2)
                 .fontWeight(.semibold)
                 .foregroundStyle(.orange)
         }

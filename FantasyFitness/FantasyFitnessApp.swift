@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct FantasyFitnessApp: App {
+    @StateObject private var appUser = AppUser(user: FFUser.placeholder)
+    @StateObject private var healthManager = HealthManager()
     @State private var isSignedIn = false
     
     var sharedModelContainer: ModelContainer = {
@@ -27,16 +29,26 @@ struct FantasyFitnessApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if isSignedIn {
-                ContentView()
-            } else {
-                LoginView(isSignedIn: $isSignedIn)
-            }
+            RootView(isSignedIn: $isSignedIn)
+                .environmentObject(appUser)
+                .environmentObject(healthManager)
         }
         .modelContainer(sharedModelContainer)
     }
 }
 
+struct RootView: View {
+    @Binding var isSignedIn: Bool
+    @EnvironmentObject var appUser: AppUser
+    
+    var body: some View {
+        if isSignedIn {
+            ContentView()
+        } else {
+            LoginView(isSignedIn: $isSignedIn)
+        }
+    }
+}
 
 struct PreviewWrapper<Content: View>: View {
     let content: () -> Content
@@ -46,8 +58,8 @@ struct PreviewWrapper<Content: View>: View {
     }
     
     var body: some View {
-        let appUser = AppUser(user: placeholderUser)
-        let healthManager = HealthManager(appUser: appUser)
+        let appUser = AppUser(user: FFUser.placeholder)
+        let healthManager = HealthManager()
         
         return content()
             .environmentObject(appUser)

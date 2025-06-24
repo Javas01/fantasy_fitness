@@ -42,6 +42,7 @@ struct Challenge: Identifiable, Codable {
         case teamBName = "team_b_name"
         case teamAScore = "team_a_score"
         case teamBScore = "team_b_score"
+        case status
     }
 }
 
