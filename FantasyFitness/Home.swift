@@ -67,7 +67,7 @@ struct HomeView: View {
                         .frame(width: 100)
                     }
                     NavigationLink(destination: ScoreHistoryView().environmentObject(appUser)) {
-                        FFScoreProgressView(ffScore: appUser.ffScore)
+                        FFScoreProgressView(ffScore: appUser.user.ffScore)
                     }
                     // MARK: Daily Challenge Section
                     Text("Daily Bonus")

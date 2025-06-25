@@ -15,6 +15,22 @@ struct FFScoreProgressView: View {
     @State private var animatedScore: Double = 0.0
     @State private var animatedProgress: CGFloat = 0.0
     
+    private func animateScore() {
+        animatedScore = 0.0
+        animatedProgress = 0.0
+        
+        Timer.scheduledTimer(withTimeInterval: 0.075, repeats: true) { timer in
+            if animatedScore < ffScore {
+                animatedScore += max(1, ffScore / 60)
+            } else {
+                animatedScore = ffScore
+                timer.invalidate()
+            }
+            
+            animatedProgress = CGFloat(animatedScore) / CGFloat(nextFF(currentScore: ffScore))
+        }
+    }
+    
     var body: some View {
         let nextLevel = nextFF(currentScore: ffScore)
         
@@ -30,22 +46,10 @@ struct FFScoreProgressView: View {
                 .frame(maxWidth: .infinity)
         }
         .onAppear {
-            // Reset before animating
-            animatedScore = 0.0
-            animatedProgress = 0.0
-            
-            // Animate score count
-            Timer.scheduledTimer(withTimeInterval: 0.075, repeats: true) { timer in
-                if animatedScore < ffScore {
-                    animatedScore += max(1, ffScore / 60)
-                } else {
-                    animatedScore = ffScore
-                    timer.invalidate()
-                }
-                
-                // Sync progress to score
-                animatedProgress = CGFloat(animatedScore) / CGFloat(nextLevel)
-            }
+            animateScore()
+        }
+        .onChange(of: ffScore) {
+            animateScore()
         }
     }
 }
