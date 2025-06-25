@@ -98,6 +98,9 @@ struct HomeView: View {
                         ForEach(viewModel.activeChallenges.prefix(2)) { challenge in
                             ChallengeCardView(challenge: challenge)
                                 .environmentObject(appUser)
+                                .padding()
+                                .background(Color.white.opacity(0.5))
+                                .cornerRadius(16)
                         }
                     }
                     

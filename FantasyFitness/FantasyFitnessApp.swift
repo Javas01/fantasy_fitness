@@ -79,6 +79,18 @@ struct FantasyFitnessApp: App {
             RootView(isSignedIn: $isSignedIn)
                 .environmentObject(appUser)
                 .environmentObject(healthManager)
+                .onAppear {
+                    Task {
+                        do {
+                            let session = try await supabase.auth.session
+                            let userId = session.user.id
+                            print("✅ User ID: \(userId)")
+                            isSignedIn = true
+                        } catch {
+                            print("❌ No active session or failed to get session: \(error)")
+                        }
+                    }
+                }
 //                .onAppear(perform: {
 //                    // this makes sure that we are setting the app to the app delegate as soon as the main view appears
 //                    appDelegate.app = self

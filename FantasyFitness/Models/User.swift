@@ -33,8 +33,8 @@ struct FFUser: Codable, Equatable, Identifiable {
 }
 extension FFUser {
     static let placeholder = FFUser(
-        id: UUID(),
-        name: "Demo User",
+        id: UUID(uuidString: "d48fe750-b692-4f7a-a929-841b9de43b3e")!, //UUID(),
+        name: "Jawwaad", // "Demo User",
         email: "demo@example.com",
         avatarName: "avatar_0_0",
         ffScore: 0.0,

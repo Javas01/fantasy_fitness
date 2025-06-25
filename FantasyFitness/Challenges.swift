@@ -15,23 +15,9 @@ struct AllChallengesView: View {
 
     var body: some View {
             VStack {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("All Challenges")
-                            .font(.largeTitle.bold())
-                            .padding(.top)
-                        
-                        ForEach(challenges) { challenge in
-                            NavigationLink(destination: ChallengeMatchupView(challenge: challenge).environmentObject(appUser)) {
-                                ChallengeCardView(
-                                    challenge: challenge
-                                )
-                            }
-                            .buttonStyle(DefaultButtonStyle())
-                        }
-                    }
-                    .padding()
-                }
+                AllChallengesList(
+                    challenges: challenges
+                )
                 
                 // Create Challenge Button
                 Button(action: {
@@ -87,5 +73,45 @@ struct AllChallengesView: View {
 #Preview {
     PreviewWrapper {
         AllChallengesView()
+    }
+}
+
+struct AllChallengesList: View {
+    let challenges: [Challenge]
+    @EnvironmentObject var appUser: AppUser
+    
+    var body: some View {
+        List {
+            Section(header: Text("Pending")) {
+                ForEach(challenges.filter { $0.status == .pending }) { challenge in
+                    NavigationLink(destination: ChallengeMatchupView(challenge: challenge).environmentObject(appUser)) {
+                        ChallengeCardView(challenge: challenge)
+                    }
+                }
+            }
+            
+            Section(header: Text("Active")) {
+                ForEach(challenges.filter { $0.status == .active }) { challenge in
+                    NavigationLink(destination: ChallengeMatchupView(challenge: challenge).environmentObject(appUser)) {
+                        ChallengeCardView(challenge: challenge)
+                    }
+//                    .listRowBackground(Color.secondary.opacity(0.2)) // 👈 changes row background
+
+                }
+            }
+            
+            Section(header: Text("Completed")) {
+                ForEach(challenges.filter { $0.status == .completed }) { challenge in
+                    NavigationLink(destination: ChallengeMatchupView(challenge: challenge).environmentObject(appUser)) {
+                        ChallengeCardView(challenge: challenge)
+                    }
+                }
+            }
+        }
+        .scrollContentBackground(.hidden) // Hides default background of List
+        .background(Color.clear)
+        .listStyle(.insetGrouped)
+        .navigationTitle("All Challenges")
+        .appBackground()
     }
 }

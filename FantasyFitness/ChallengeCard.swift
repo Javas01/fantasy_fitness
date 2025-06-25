@@ -21,7 +21,7 @@ struct ChallengeCardView: View {
                     .frame(width: 55, height: 55)
                 VStack {
                     Text(String(format: "%.1f", challenge.teamAScore))
-                        .font(.system(size: 32, weight: .bold))
+                        .font(.system(size: 24, weight: .bold))
                     Text(challenge.teamAName)
                         .lineLimit(1)
                         .truncationMode(.tail)
@@ -34,7 +34,7 @@ struct ChallengeCardView: View {
                 Spacer()
                 VStack {
                     Text(String(format: "%.1f", challenge.teamBScore))
-                        .font(.system(size: 32, weight: .bold))
+                        .font(.system(size: 24, weight: .bold))
                     Text(challenge.teamBName)
                         .lineLimit(1)
                         .truncationMode(.tail)
@@ -52,8 +52,12 @@ struct ChallengeCardView: View {
                 teamBProjection: teamBProjection
             )
         }
-        .padding()
-        .background(Color.white.opacity(0.5)) // or .background(Color.blue.opacity(0.1))
+        .padding(
+            .horizontal, -1
+        )
+        .padding(
+            .vertical, 10
+        )
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 4, y: 2)
     }
