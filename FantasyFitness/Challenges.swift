@@ -30,11 +30,6 @@ struct AllChallengesView: View {
                             .buttonStyle(DefaultButtonStyle())
                         }
                     }
-                    .onAppear{
-                        print("f swift")
-                        print(appUser.name)
-                        print("f swift")
-                    }
                     .padding()
                 }
                 
@@ -67,12 +62,20 @@ struct AllChallengesView: View {
         .onAppear {
             Task {
                 do {
-                    let response: PostgrestResponse<[Challenge]> = try await supabase
-                        .from("challenges")
-                        .select()
+                    let response: PostgrestResponse<[ChallengeWrapper]> = try await supabase
+                        .from("challenge_participants")
+                        .select("challenge:challenges(*)")
+                        .eq("user_id", value: appUser.id.uuidString)
                         .execute()
                     
-                    self.challenges = response.value
+                    struct ChallengeWrapper: Codable {
+                        let challenge: Challenge
+                    }
+                    
+                    let wrappers = response.value
+                    DispatchQueue.main.async {
+                        self.challenges = wrappers.map { $0.challenge }
+                    }
                 } catch {
                     print("❌ Failed to fetch challenges: \(error)")
                 }

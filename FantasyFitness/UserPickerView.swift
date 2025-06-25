@@ -66,11 +66,37 @@ struct UserPickerView: View {
                                 startDate: ISO8601DateFormatter().string(from: .now)
                             )
                             
+                            // 1. Update challenge with new user
                             try await supabase
                                 .from("challenges")
                                 .update(payload)
                                 .eq("id", value: challenge.id)
                                 .execute()
+                            
+                            // 2. Query notification_tokens for user(s)
+                            struct Token: Decodable {
+                                let token: String
+                            }
+                            let tokenResponse: PostgrestResponse<[Token]> = try await supabase
+                                .from("notification_tokens")
+                                .select("token")
+                                .eq("user_id", value: user.id.uuidString) // Or `.in()` for a team
+                                .execute()
+                            
+                            // 3. Extract player IDs
+                            let tokens = tokenResponse.value.map { $0.token }
+                            
+                            // 4. Send the push
+                            guard !tokens.isEmpty else {
+                                print("⚠️ No tokens found for \(user.name)")
+                                return
+                            }
+                            
+                            try await sendPushNotification(
+                                to: tokens,
+                                title: "Challenge Updated!",
+                                message: "\(challenge.teamAName) has added you to a challenge, Good luck!"
+                            )
                         } else {
                             // Handle team invite logic
                         }

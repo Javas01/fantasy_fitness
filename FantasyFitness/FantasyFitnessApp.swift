@@ -8,19 +8,48 @@
 import SwiftUI
 import SwiftData
 import UserNotifications
+import OneSignalFramework
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        
+        // Enable verbose logging for debugging (remove in production)
+        OneSignal.Debug.setLogLevel(.LL_VERBOSE)
+        // Initialize with your OneSignal App ID
+        OneSignal.initialize("89ce9cde-cf9b-4eb5-beee-0c0588eff190", withLaunchOptions: launchOptions)
+        // Use this method to prompt for push notifications.
+        // We recommend removing this method after testing and instead use In-App Messages to prompt for notification permission.
+        OneSignal.Notifications.requestPermission({ accepted in
+            print("User accepted notifications: \(accepted)")
+        }, fallbackToSettings: false)
+        
+        // ✅ Save player ID if available
+        if let playerId = OneSignal.User.pushSubscription.id {
+            print("✅ OneSignal Player ID: \(playerId)")
+            
+            Task {
+                await sendNotificationTokenToSupabase(token: playerId)
+            }
+        } else {
+            print("❌ No OneSignal Player ID available")
+        }
+        
+        return true
+    }
+}
 
 @main
 struct FantasyFitnessApp: App {
     // this gives us access to our app delegate in SwiftUI
-    @UIApplicationDelegateAdaptor private var appDelegate: CustomAppDelegate
-    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     @StateObject private var appUser = AppUser(user: FFUser.placeholder)
     @StateObject private var healthManager = HealthManager()
     @State private var isSignedIn = false
     
-    init() {
-        requestNotificationPermission()
-    }
+//    init() {
+//        requestNotificationPermission()
+//    }
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -50,10 +79,10 @@ struct FantasyFitnessApp: App {
             RootView(isSignedIn: $isSignedIn)
                 .environmentObject(appUser)
                 .environmentObject(healthManager)
-                .onAppear(perform: {
-                    // this makes sure that we are setting the app to the app delegate as soon as the main view appears
-                    appDelegate.app = self
-                })
+//                .onAppear(perform: {
+//                    // this makes sure that we are setting the app to the app delegate as soon as the main view appears
+//                    appDelegate.app = self
+//                })
         }
         .modelContainer(sharedModelContainer)
     }

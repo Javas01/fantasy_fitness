@@ -33,3 +33,32 @@ struct NewNotificationToken: Codable {
         case deviceInfo = "device_info"
     }
 }
+
+func sendPushNotification(
+    to playerIds: [String],
+    title: String,
+    message: String
+) async throws {
+    let payload: [String: Any] = [
+        "app_id": "89ce9cde-cf9b-4eb5-beee-0c0588eff190",
+        "include_player_ids": playerIds,
+        "headings": ["en": title],
+        "contents": ["en": message]
+    ]
+    
+    let jsonData = try JSONSerialization.data(withJSONObject: payload)
+    
+    var request = URLRequest(url: URL(string: "https://onesignal.com/api/v1/notifications")!)
+    request.httpMethod = "POST"
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.addValue("Basic os_v2_app_rhhjzxwptnhllpxobqcyr37rsa3yanj3akke6t53cbs35mk5wqpjul4phsizi24x7tlooqscjaesnswikdjzbz4syqnujfuui3nlncq", forHTTPHeaderField: "Authorization")
+    request.httpBody = jsonData
+    
+    let (_, response) = try await URLSession.shared.data(for: request)
+    
+    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+        print("Push notification failed with status code \(httpResponse.statusCode)")
+    } else {
+        print("Push notification sent successfully.")
+    }
+}
