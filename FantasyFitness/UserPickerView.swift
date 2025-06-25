@@ -35,12 +35,12 @@ struct UserPickerView: View {
     
     var body: some View {
         VStack {
-            // Search Bar
-            TextField("Search users...", text: $searchText)
-                .padding(10)
-                .background(Color(.systemGray6))
-                .cornerRadius(10)
-                .padding(.horizontal)
+            // Search Bar add later
+//            TextField("Search users...", text: $searchText)
+//                .padding(10)
+//                .background(Color(.systemGray6))
+//                .cornerRadius(10)
+//                .padding(.horizontal)
             
             UserGridView(users: filteredUsers) { user in
                 Task {
@@ -58,11 +58,23 @@ struct UserPickerView: View {
                             .execute()
                         print("✅ Added \(user.name) to Team B")
                         
-                        try await supabase
-                            .from("challenges")
-                            .update(["team_b_name": user.name, "team_b_logo": user.avatarName])
-                            .eq("id", value: challenge.id)
-                            .execute()
+                        if challenge.size == 1 {
+                            let payload = ChallengeUpdatePayload(
+                                teamBName: user.name,
+                                teamBLogo: user.avatarName,
+                                status: ChallengeStatus.active.rawValue,
+                                startDate: ISO8601DateFormatter().string(from: .now)
+                            )
+                            
+                            try await supabase
+                                .from("challenges")
+                                .update(payload)
+                                .eq("id", value: challenge.id)
+                                .execute()
+                        } else {
+                            // Handle team invite logic
+                        }
+                        
                         print("✅ Updated Team B Name")
 
                         dismiss()
@@ -143,5 +155,19 @@ struct UserGridView: View {
 #Preview {
     PreviewWrapper {
         UserPickerView(challenge: testChallenge)
+    }
+}
+
+struct ChallengeUpdatePayload: Codable {
+    let teamBName: String
+    let teamBLogo: String
+    let status: String
+    let startDate: String
+    
+    enum CodingKeys: String, CodingKey {
+        case teamBName = "team_b_name"
+        case teamBLogo = "team_b_logo"
+        case status
+        case startDate = "start_date"
     }
 }

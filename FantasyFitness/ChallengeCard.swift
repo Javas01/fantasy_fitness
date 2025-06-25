@@ -60,7 +60,7 @@ struct ChallengeCardView: View {
 }
 
 let testChallenge = Challenge(
-    id: UUID(uuidString: "7ee298cf-8b28-425b-8e29-7f29646aa41e")!,
+    id: UUID(uuidString: "19be7bda-e2fc-40f4-8dd1-a350a980b3dc")!,
     size: 1,
     challengeType: .goal,
     goal: 500,
