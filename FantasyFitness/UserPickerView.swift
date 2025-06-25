@@ -18,6 +18,8 @@ struct UserPickerView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var appUser: AppUser
     
+    @Binding var didInvite: Bool
+    
     @State private var searchText = ""
     @State private var allUsers: [FFUser] = []
     
@@ -35,13 +37,6 @@ struct UserPickerView: View {
     
     var body: some View {
         VStack {
-            // Search Bar add later
-//            TextField("Search users...", text: $searchText)
-//                .padding(10)
-//                .background(Color(.systemGray6))
-//                .cornerRadius(10)
-//                .padding(.horizontal)
-            
             UserGridView(users: filteredUsers) { user in
                 Task {
                     do {
@@ -73,6 +68,10 @@ struct UserPickerView: View {
                                 .eq("id", value: challenge.id)
                                 .execute()
                             
+                            DispatchQueue.main.async {
+                                didInvite.toggle()
+                            }
+                            
                             // 2. Query notification_tokens for user(s)
                             struct Token: Decodable {
                                 let token: String
@@ -89,6 +88,7 @@ struct UserPickerView: View {
                             // 4. Send the push
                             guard !tokens.isEmpty else {
                                 print("⚠️ No tokens found for \(user.name)")
+                                dismiss()
                                 return
                             }
                             
@@ -102,10 +102,10 @@ struct UserPickerView: View {
                         }
                         
                         print("✅ Updated Team B Name")
-
                         dismiss()
                     } catch {
                         print("❌ Error adding user to team: \(error)")
+                        dismiss()
                     }
                 }
             }
@@ -180,7 +180,7 @@ struct UserGridView: View {
 
 #Preview {
     PreviewWrapper {
-        UserPickerView(challenge: testChallenge)
+        UserPickerView(didInvite: .constant(true), challenge: testChallenge)
     }
 }
 

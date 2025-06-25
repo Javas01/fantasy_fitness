@@ -39,7 +39,7 @@ struct AllChallengesView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 12)
                 .sheet(isPresented: $showCreateChallengeSheet) {
-                    CreateChallengeView()
+                    CreateChallengeView(challenges: $challenges)
                         .environmentObject(appUser)
                 }
             }

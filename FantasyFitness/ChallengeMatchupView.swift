@@ -114,6 +114,7 @@ struct ChallengeMatchupView: View {
     let challenge: Challenge
     @StateObject private var viewModel: ChallengeMatchupViewModel
     @State private var isSheetOpen = false
+    @State private var didInviteUser = false
     
     init(challenge: Challenge) {
         _viewModel = StateObject(wrappedValue: ChallengeMatchupViewModel(challenge: challenge))
@@ -179,8 +180,16 @@ struct ChallengeMatchupView: View {
         .padding(5)
         .appBackground()
         .sheet(isPresented: $isSheetOpen) {
-            UserPickerView(challenge: challenge)
+            UserPickerView(didInvite: $didInviteUser, challenge: challenge)
                 .environmentObject(appUser)
+        }
+        .onChange(of: didInviteUser) {
+            if didInviteUser {
+                Task {
+                    await viewModel.fetchTeams()
+                    didInviteUser = false // reset flag
+                }
+            }
         }
     }
     

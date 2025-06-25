@@ -50,6 +50,26 @@ struct Challenge: Identifiable, Codable {
     }
 }
 
+extension Challenge {
+    static func from(insert: ChallengeInsert, id: UUID) -> Challenge {
+        return Challenge(
+            id: id,
+            size: insert.size,
+            challengeType: ChallengeType(rawValue: insert.challenge_type) ?? .goal,
+            goal: insert.goal,
+            startDate: insert.start_date,
+            endDate: insert.end_date,
+            teamAName: insert.team_a_name ?? "Team A",
+            teamBName: "Team B", // default
+            teamAScore: 0,
+            teamBScore: 0,
+            teamALogo: insert.team_a_logo ?? "avatar_0_0",
+            teamBLogo: "avatar_0_1",
+            status: .pending
+        )
+    }
+}
+
 struct ChallengeInsert: Codable {
     let size: Int
     let scoring_type: String

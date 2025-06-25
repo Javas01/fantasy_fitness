@@ -15,6 +15,8 @@ func sampleUsers() -> [FFUser] {
 }
 
 struct CreateChallengeView: View {
+    @Binding var challenges: [Challenge]
+
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var appUser: AppUser
 
@@ -88,6 +90,11 @@ struct CreateChallengeView: View {
                                 .insert(participants)
                                 .execute()
                             
+                            DispatchQueue.main.async {
+                                challenges.append(
+                                    Challenge.from(insert: newChallenge, id: challengeId)
+                                )
+                            }
                             print("✅ Challenge + Participants created successfully")
                             dismiss()
                         } catch {
@@ -270,7 +277,10 @@ struct ButtonText: View {
 }
 
 #Preview {
+    @Previewable @State var c = [testChallenge]
     PreviewWrapper {
-        CreateChallengeView()
+        CreateChallengeView(
+            challenges: $c
+        )
     }
 }
