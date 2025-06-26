@@ -49,7 +49,7 @@ private func handleAppleLogin(result: Result<ASAuthorization, Error>) {
                                 id: session.user.id,
                                 name: fullName.isEmpty ? "Anonymous" : fullName,
                                 email: session.user.email ?? "",
-                                avatarName: "",
+                                avatarName: "avatar_0_0",
                                 ffScore: 0,
                                 lastSync: Calendar.current.date(byAdding: .hour, value: -24, to: .now)!
                             )

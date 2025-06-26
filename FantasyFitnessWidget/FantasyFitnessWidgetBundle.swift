@@ -12,6 +12,7 @@ import SwiftUI
 struct FantasyFitnessWidgetBundle: WidgetBundle {
     var body: some Widget {
         FantasyFitnessWidget()
+        PlayerLevelWidget()
         FantasyFitnessWidgetControl()
         FantasyFitnessWidgetLiveActivity()
     }

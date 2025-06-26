@@ -43,7 +43,7 @@ struct HomeView: View {
                                 .resizable()
                                 .frame(width: 100, height: 100)
                             
-                            Text(viewModel.tier.title)
+                            Text(ffTitle(for: appUser.user.ffScore))
                                 .font(.title2.bold())
                             
                             (
@@ -143,16 +143,11 @@ struct HomeView: View {
 // MARK: - HomeViewModel
 @MainActor
 class HomeViewModel: ObservableObject {
-    @Published var tier = TierInfo(title: "Beach Bum", currentXP: 360, maxXP: 500)
     @Published var activeChallenges: [Challenge] = []
     @Published var friendFeed: [FriendActivity] = [
         FriendActivity(name: "Jay", avatarName: "avatar_0_0", action: "ran a mile", timestamp: "2025"),
         FriendActivity(name: "Bob", avatarName: "avatar_0_2", action: "completed the Shape Up challenge", timestamp: "2025")
     ]
-    
-    var tierProgress: Double {
-        Double(tier.currentXP) / Double(tier.maxXP)
-    }
     
     func loadActiveChallenges(for userId: UUID) {
         Task {

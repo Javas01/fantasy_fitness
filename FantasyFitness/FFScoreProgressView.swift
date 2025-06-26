@@ -94,3 +94,25 @@ func nextFF(currentScore: Double) -> Int {
             return 10000 // Maxed out
     }
 }
+func ffTitle(for score: Double) -> String {
+    switch score {
+        case 0..<50: return "Couch Potato"
+        case 50..<150: return "Remote Warrior"
+        case 150..<300: return "Slow Jogger"
+        case 300..<500: return "Gym Dabbler"
+        case 500..<750: return "Step Counter"
+        case 750..<1000: return "Fitness Fan"
+        case 1000..<1400: return "Park Powerwalker"
+        case 1400..<1800: return "Spin Class Survivor"
+        case 1800..<2300: return "Yoga Yoda"
+        case 2300..<3000: return "Marathon Maybe"
+        case 3000..<4000: return "Beast Mode Lite"
+        case 4000..<5000: return "Cardio Commander"
+        case 5000..<6000: return "Lift Lord"
+        case 6000..<7000: return "Treadmill Titan"
+        case 7000..<8000: return "Crossfit Cultist"
+        case 8000..<9000: return "Sweat Machine"
+        case 9000..<10000: return "Olympic Hopeful"
+        default: return "Fantasy Fitness Legend 💪"
+    }
+}
