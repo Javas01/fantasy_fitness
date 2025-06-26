@@ -77,7 +77,7 @@ let testChallenge = Challenge(
 struct ChallengeCard_Previews: PreviewProvider {
     static var previews: some View {
         PreviewWrapper {
-            AllChallengesView()
+            AllChallengesView(challenges: [testChallenge])
         }
     }
 }

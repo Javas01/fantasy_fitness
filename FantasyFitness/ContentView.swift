@@ -42,18 +42,17 @@ struct ContentView: View {
                 ProgressView("Loading…")
                     .task { await loadSession() }  // ← kick off your login/database fetch
             } else {
-                NavigationStack {
-                    HomeView()
-                }
-                .appBackground()
-                .task {
-                    // Sync Health Data
-                    await healthManager.syncAllHealthData(appUser: appUser)
-                    
-                    // Save user ID to App Group for widget access
-                    let userDefaults = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")
-                    userDefaults?.set(appUser.id.uuidString, forKey: "widget_user_id")
-                }
+                MainAppView()
+                    .environmentObject(appUser)
+                    .environmentObject(healthManager)
+                    .task {
+                        // Sync Health Data
+                        await healthManager.syncAllHealthData(appUser: appUser)
+                        
+                        // Save user ID to App Group for widget access
+                        let userDefaults = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")
+                        userDefaults?.set(appUser.id.uuidString, forKey: "widget_user_id")
+                    }
             }
         }
     }

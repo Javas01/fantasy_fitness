@@ -40,7 +40,7 @@ struct DailyChallengeView: View {
             }
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(Color.white.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }

@@ -72,7 +72,6 @@ struct LeaderboardView: View {
                             ForEach(Array(viewModel.players.dropFirst(3).enumerated()), id: \.element.id) { i, player in
                                 UserRowView(player: player, rank: i + 4) // because top 3 were dropped
                             }
-                            FriendsView()
                         }
                         .padding(.horizontal)
                     }
@@ -177,7 +176,7 @@ struct UserRowView: View {
             
             VStack(alignment: .leading) {
                 Text(player.name).bold()
-                Text("\(player.ffScore.rounded()) pts")
+                Text("\(player.ffScore, specifier: "%.1f") pts")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
