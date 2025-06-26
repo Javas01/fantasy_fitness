@@ -7,6 +7,7 @@
 import HealthKit
 import PostgREST
 import SwiftUICore
+import WidgetKit
 
 let supportedTypes: [HKQuantityTypeIdentifier] = [
     .distanceWalkingRunning,
@@ -106,6 +107,7 @@ class HealthManager: ObservableObject {
                 appUser.update(with: updated)
             }
             print("updated user last sync and ff score")
+            WidgetCenter.shared.reloadTimelines(ofKind: "PlayerLevelWidget")
             
             let challengeResponse: PostgrestResponse<[ChallengeParticipantWithChallenge]> = try await supabase
                 .from("challenge_participants")

@@ -11,6 +11,8 @@
 		2C1440A12E0C6D3400246730 /* OneSignalExtension in Frameworks */ = {isa = PBXBuildFile; productRef = 2C1440A02E0C6D3400246730 /* OneSignalExtension */; };
 		2C1440A32E0C6D3400246730 /* OneSignalFramework in Frameworks */ = {isa = PBXBuildFile; productRef = 2C1440A22E0C6D3400246730 /* OneSignalFramework */; };
 		2C1440A52E0C6D3400246730 /* OneSignalInAppMessages in Frameworks */ = {isa = PBXBuildFile; productRef = 2C1440A42E0C6D3400246730 /* OneSignalInAppMessages */; };
+		2C1440AB2E0D039300246730 /* PostgREST in Frameworks */ = {isa = PBXBuildFile; productRef = 2C1440AA2E0D039300246730 /* PostgREST */; };
+		2C1440AD2E0D039300246730 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 2C1440AC2E0D039300246730 /* Supabase */; };
 		2C20D0EC2E023F0700590522 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C20D0EB2E023F0700590522 /* WidgetKit.framework */; };
 		2C20D0EE2E023F0700590522 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C20D0ED2E023F0700590522 /* SwiftUI.framework */; };
 		2C20D0FD2E023F0900590522 /* FantasyFitnessWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2C20D0E92E023F0700590522 /* FantasyFitnessWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -190,6 +192,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C1440AD2E0D039300246730 /* Supabase in Frameworks */,
+				2C1440AB2E0D039300246730 /* PostgREST in Frameworks */,
 				2C20D0EE2E023F0700590522 /* SwiftUI.framework in Frameworks */,
 				2C20D0EC2E023F0700590522 /* WidgetKit.framework in Frameworks */,
 			);
@@ -355,6 +359,8 @@
 			);
 			name = FantasyFitnessWidgetExtension;
 			packageProductDependencies = (
+				2C1440AA2E0D039300246730 /* PostgREST */,
+				2C1440AC2E0D039300246730 /* Supabase */,
 			);
 			productName = FantasyFitnessWidgetExtension;
 			productReference = 2C20D0E92E023F0700590522 /* FantasyFitnessWidgetExtension.appex */;
@@ -532,7 +538,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Jawwaad.FantasyFitness.OneSignalNotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -558,7 +564,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Jawwaad.FantasyFitness.OneSignalNotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -700,7 +706,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = FantasyFitness/FantasyFitness.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M5SRZY657F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -718,7 +724,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Jawwaad.FantasyFitness;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -734,7 +740,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = FantasyFitness/FantasyFitness.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M5SRZY657F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -752,7 +758,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Jawwaad.FantasyFitness;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -840,7 +846,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = FantasyFitnessWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M5SRZY657F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FantasyFitnessWidget/Info.plist;
@@ -851,7 +857,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Jawwaad.FantasyFitness.FantasyFitnessWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -868,7 +874,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = FantasyFitnessWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = M5SRZY657F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FantasyFitnessWidget/Info.plist;
@@ -879,7 +885,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.Jawwaad.FantasyFitness.FantasyFitnessWidget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -982,6 +988,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2C14409F2E0C6D3400246730 /* XCRemoteSwiftPackageReference "OneSignal-iOS-SDK" */;
 			productName = OneSignalInAppMessages;
+		};
+		2C1440AA2E0D039300246730 /* PostgREST */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CEB9BC72E0369D200AF604E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = PostgREST;
+		};
+		2C1440AC2E0D039300246730 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CEB9BC72E0369D200AF604E /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 		2CEB9BC82E0369D200AF604E /* Auth */ = {
 			isa = XCSwiftPackageProductDependency;

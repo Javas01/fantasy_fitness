@@ -7,6 +7,30 @@
 
 import WidgetKit
 import SwiftUI
+import Supabase
+
+let supabase = SupabaseClient(
+    supabaseURL: URL(string: "https://oqyigcstkojffdkwmbgf.supabase.co")!,
+    supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xeWlnY3N0a29qZmZka3dtYmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAyMTY1MzIsImV4cCI6MjA2NTc5MjUzMn0.Uc5d9B6uo1XOCWeLhOK2GVs4OJzJyVTMU64LgYkvEgo"
+)
+
+struct FFUser: Codable, Equatable, Identifiable {
+    let id: UUID
+    let name: String
+    let email: String
+    let avatarName: String
+    let ffScore: Double
+    let lastSync: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case email
+        case ffScore = "ff_score"
+        case avatarName = "avatar_name"
+        case lastSync = "last_sync"
+    }
+}
 
 struct PlayerLevelEntry: TimelineEntry {
     let date: Date
@@ -25,9 +49,41 @@ struct PlayerLevelProvider: TimelineProvider {
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<PlayerLevelEntry>) -> Void) {
-        let entry = PlayerLevelEntry(date: Date(), avatarName: "avatar_0_0", ffScore: 360)
-        let timeline = Timeline(entries: [entry], policy: .never) // or .after(Date().addingTimeInterval(...))
-        completion(timeline)
+        let userDefaults = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")
+        
+        guard let userIdString = userDefaults?.string(forKey: "widget_user_id"),
+              let userId = UUID(uuidString: userIdString) else {
+            let fallback = PlayerLevelEntry(date: .now, avatarName: "avatar_0_0", ffScore: 0)
+            return completion(Timeline(entries: [fallback], policy: .after(.now.addingTimeInterval(3600))))
+        }
+        
+        Task {
+            do {
+                // 🧠 Supabase call
+                let response: PostgrestResponse<[FFUser]> = try await supabase
+                    .from("users")
+                    .select()
+                    .eq("id", value: userId.uuidString)
+                    .execute()
+                
+                guard let user = response.value.first else {
+                    throw URLError(.badServerResponse)
+                }
+                
+                let entry = PlayerLevelEntry(
+                    date: .now,
+                    avatarName: user.avatarName,
+                    ffScore: user.ffScore
+                )
+                
+                let timeline = Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(3600)))
+                completion(timeline)
+            } catch {
+                print("❌ Supabase widget fetch failed:", error)
+                let fallback = PlayerLevelEntry(date: .now, avatarName: "avatar_0_0", ffScore: 0)
+                completion(Timeline(entries: [fallback], policy: .after(.now.addingTimeInterval(3600))))
+            }
+        }
     }
 }
 
