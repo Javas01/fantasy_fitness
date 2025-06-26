@@ -16,47 +16,8 @@ let supportedTypes: [HKQuantityTypeIdentifier] = [
 //    .runningSpeed -> might be cool to use later
 ]
 
-func formatDuration(_ seconds: TimeInterval) -> String {
-    let minutes = Int(seconds) / 60
-    let secs = Int(seconds) % 60
-    return "\(minutes) min \(secs) sec"
-}
-
-func convertToImperial(fromMeters meters: Double) -> (miles: Double, feet: Double, yards: Double) {
-    (meters / 1609.34, meters * 3.28084, meters * 1.09361)
-}
-
-struct HealthSample: Codable, Identifiable {
-    var id: String { sampleId }
-    let sampleId: String
-    let userId: String
-    let quantityType: String
-    let distanceMeters: Double
-    let startTime: Date
-    let endTime: Date
-    let durationSeconds: Double
-    
-    enum CodingKeys: String, CodingKey {
-        case sampleId = "sample_id", userId = "user_id", quantityType = "quantity_type"
-        case distanceMeters = "distance_meters", startTime = "start_time", endTime = "end_time"
-        case durationSeconds = "duration_seconds"
-    }
-}
-
 struct ChallengeParticipantWithChallenge: Codable {
     let challenges: Challenge?
-}
-
-func calculateFFScore(distanceMeters: Double, durationSeconds: Double) -> Double {
-    guard distanceMeters > 0, durationSeconds > 0 else { return 0 }
-    let base = distanceMeters / 100
-    let speed = distanceMeters / durationSeconds
-    let multiplier: Double =
-    speed < 1.5 ? 1.0 :
-    speed < 2.5 ? 1.25 :
-    speed < 3.5 ? 1.5 :
-    speed < 4.5 ? 2.0 : 2.5
-    return base * multiplier
 }
 
 struct UpdateUserPayload: Codable {
@@ -66,7 +27,7 @@ struct UpdateUserPayload: Codable {
 
 @MainActor
 class HealthManager: ObservableObject {
-    @Published var recentSamples: [HealthSample] = []
+    @Published var recentSamples: [HealthSession] = []
     let healthStore = HKHealthStore()
     
     func syncAllHealthData(appUser: AppUser) async {
@@ -74,7 +35,8 @@ class HealthManager: ObservableObject {
         
         let allSamples = await fetchAllSupportedSamples(appUser: appUser)
         guard !allSamples.isEmpty else { return }
-        self.recentSamples.append(contentsOf: allSamples)
+        let sessions = groupIntoSessions(samples: allSamples)
+        self.recentSamples.append(contentsOf: sessions)
         
         do {
             try await supabase.from("health_data").insert(allSamples).execute()
@@ -92,7 +54,7 @@ class HealthManager: ObservableObject {
                 return
             }
             
-            let ffGained = allSamples.reduce(0.0) { $0 + calculateFFScore(distanceMeters: $1.distanceMeters, durationSeconds: $1.durationSeconds) }
+            let ffGained = allSamples.reduce(0.0) { $0 + $1.ffScore }
             let updatedFF = latestUser.ffScore + ffGained
 
             let payload = UpdateUserPayload(ff_score: updatedFF, last_sync: .now)
@@ -155,34 +117,25 @@ class HealthManager: ObservableObject {
     }
     
     private func fetchSamples(appUser: AppUser, for type: HKQuantityType) async -> [HealthSample] {
-        #if targetEnvironment(simulator)
-                // Return fake samples for testing in the simulator
-                let now = Date()
-                let tenMinutes: TimeInterval = 600
-                let start = now.addingTimeInterval(-tenMinutes)
-                
-                let fakeSample = HealthSample(
-                    sampleId: UUID().uuidString,
-                    userId: appUser.id.uuidString,
-                    quantityType: type.identifier,
-                    distanceMeters: 500, // 1.5km
-                    startTime: start,
-                    endTime: now,
-                    durationSeconds: tenMinutes
-                )
+#if targetEnvironment(simulator)
+        let userId = appUser.id.uuidString
+        let twentyFourHoursAgo = Date().addingTimeInterval(-86400) // 60 * 60 * 24
         
-                let fakeSampleTwo = HealthSample(
-                    sampleId: UUID().uuidString,
-                    userId: appUser.id.uuidString,
-                    quantityType: type.identifier,
-                    distanceMeters: 200, // 1.5km
-                    startTime: start,
-                    endTime: now,
-                    durationSeconds: tenMinutes
-                )
-                
-        return [fakeSample, fakeSampleTwo]
-        #else
+        do {
+            let response: PostgrestResponse<[HealthSample]> = try await supabase
+                .from("health_data")
+                .select()
+                .eq("user_id", value: userId)
+                .gte("start_time", value: ISO8601DateFormatter().string(from: twentyFourHoursAgo))
+                .order("start_time", ascending: true)
+                .execute()
+            
+            return response.value
+        } catch {
+            print("❌ Failed to fetch 24hr data from Supabase: \(error)")
+            return []
+        }
+#else
         let userId = appUser.id.uuidString
         let lastSync = appUser.lastSync
         return await withCheckedContinuation { continuation in
@@ -211,14 +164,14 @@ class HealthManager: ObservableObject {
             }
             healthStore.execute(query)
         }
-        #endif
+#endif
     }
     
     private func updateScore(appUser: AppUser, for challenge: Challenge, with samples: [HealthSample]) async {
         let relevant = samples.filter {
             $0.startTime >= challenge.startDate && $0.endTime <= (challenge.endDate ?? .now)
         }
-        let gained = relevant.reduce(0.0) { $0 + calculateFFScore(distanceMeters: $1.distanceMeters, durationSeconds: $1.durationSeconds) }
+        let gained = relevant.reduce(0.0) { $0 + $1.ffScore }
         
         do {
             let resp: PostgrestResponse<[ChallengeParticipant]> = try await supabase

@@ -39,6 +39,7 @@ struct AllChallengesList: View {
                     NavigationLink(destination: ChallengeMatchupView(challenge: challenge).environmentObject(appUser)) {
                         ChallengeCardView(challenge: challenge)
                     }
+                    .listRowBackground(Color.white.opacity(0.5)) // 👈 changes row background
                 }
             }
             
@@ -47,7 +48,7 @@ struct AllChallengesList: View {
                     NavigationLink(destination: ChallengeMatchupView(challenge: challenge).environmentObject(appUser)) {
                         ChallengeCardView(challenge: challenge)
                     }
-//                    .listRowBackground(Color.secondary.opacity(0.2)) // 👈 changes row background
+                    .listRowBackground(Color.white.opacity(0.5)) // 👈 changes row background
 
                 }
             }
@@ -57,6 +58,7 @@ struct AllChallengesList: View {
                     NavigationLink(destination: ChallengeMatchupView(challenge: challenge).environmentObject(appUser)) {
                         ChallengeCardView(challenge: challenge)
                     }
+                    .listRowBackground(Color.white.opacity(0.5)) // 👈 changes row background
                 }
             }
         }

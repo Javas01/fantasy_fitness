@@ -1,27 +1,24 @@
 //
-//  ActivityHistoryList.swift
+//  HealthDataScroll.swift
 //  FantasyFitness
 //
-//  Created by Jawwaad Sabree on 6/20/25.
+//  Created by Jawwaad Sabree on 6/26/25.
 //
 
-
 import SwiftUI
-import PostgREST
 
-struct ActivityHistoryList: View {
-    let activities: [LabeledHealthSample]
+struct HealthDataScroll: View {
+    let data: [LabeledHealthSession]
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                ForEach(activities.sorted { $0.sample.startTime > $1.sample.startTime }) { item in
+                ForEach(data.sorted { $0.sample.startTime > $1.sample.startTime }) { item in
                     let sample = item.sample
-                    let imperialDistance = convertToImperial(fromMeters: sample.distanceMeters)
-                    
+
                     VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text(formattedDate(sample.startTime))
+                        HStack{
+                            Text("\(sample.startTime.formattedDate) -> \(sample.endTime.formattedTime)")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                             if let name = item.name {
@@ -31,26 +28,32 @@ struct ActivityHistoryList: View {
                                     .foregroundColor(.blue)
                             }
                         }
-                        
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("🏃 \(displayDistance(miles: imperialDistance.miles, yards: imperialDistance.yards, feet: imperialDistance.feet))")
-                                Text("⏱️ \(displayDuration(sample.durationSeconds))")
+                                Text("🏃 \(sample.formattedDistance)")
+                                Text("⏱️ \(displayDuration(sample.duration))")
                             }
                             Spacer()
-                            Text("+\(String(format: "%.1f", calculateFFScore(distanceMeters: sample.distanceMeters, durationSeconds: sample.durationSeconds))) FF")
+                            Text("+\(String(format: "%.1f", sample.ffScore)) FF")
                                 .foregroundColor(.orange)
                                 .font(.system(size: 18, weight: .bold, design: .rounded))
                                 .padding(.leading, 8)
                         }
                     }
                     .padding()
-                    .background(Color(.secondarySystemBackground))
+                    .background(Color.white.opacity(0.5))
                     .cornerRadius(12)
                     .frame(maxWidth: .infinity)
                 }
             }
             .padding(.horizontal)
         }
+    }
+}
+// MARK: - Preview
+#Preview {
+    PreviewWrapper {
+        return ScoreHistoryView()
+            .appBackground()
     }
 }

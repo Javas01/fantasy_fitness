@@ -14,7 +14,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
         // Enable verbose logging for debugging (remove in production)
-        OneSignal.Debug.setLogLevel(.LL_VERBOSE)
+        OneSignal.Debug.setLogLevel(.LL_ERROR)
         // Initialize with your OneSignal App ID
         OneSignal.initialize("89ce9cde-cf9b-4eb5-beee-0c0588eff190", withLaunchOptions: launchOptions)
         // Use this method to prompt for push notifications.
@@ -26,6 +26,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // ✅ Save player ID if available
         if let playerId = OneSignal.User.pushSubscription.id {
             print("✅ OneSignal Player ID: \(playerId)")
+            print(OneSignal.User.pushSubscription.optedIn)
+            print("Push Token: \(OneSignal.User.pushSubscription.token ?? "nil")")
             
             Task {
                 await sendNotificationTokenToSupabase(token: playerId)

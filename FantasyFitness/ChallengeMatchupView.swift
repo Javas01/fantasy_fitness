@@ -23,7 +23,7 @@ struct ChallengeParticipantSlim: Decodable {
 class ChallengeMatchupViewModel: ObservableObject {
     @Published var teamA: FantasyTeam?
     @Published var teamB: FantasyTeam?
-    @Published var challengeActivities: [LabeledHealthSample] = []
+    @Published var challengeActivities: [LabeledHealthSession] = []
     
     let challenge: Challenge
     
@@ -36,7 +36,7 @@ class ChallengeMatchupViewModel: ObservableObject {
     }
     
     func fetchLabeledHealthDataForChallenge() async {
-        var labeledSamples: [LabeledHealthSample] = []
+        var labeledSamples: [LabeledHealthSession] = []
         
         do {
             print(challenge.status)
@@ -65,10 +65,15 @@ class ChallengeMatchupViewModel: ObservableObject {
             let samples = sampleResponse.value
             print(samples)
             
+            let grouped: [String: [HealthSample]] = Dictionary(grouping: samples, by: { $0.userId })
+            let sessions = grouped.flatMap { (_, userSamples) in
+                groupIntoSessions(samples: userSamples)
+            }
+
             // 3. Attach name to each sample
-            labeledSamples = samples.compactMap { sample -> LabeledHealthSample? in
+            labeledSamples = sessions.compactMap { sample -> LabeledHealthSession? in
                 guard let name = userIdToName[sample.userId] else { return nil }
-                return LabeledHealthSample(sample: sample, name: name)
+                return LabeledHealthSession(sample: sample, name: name)
             }
         } catch {
             print("❌ Error fetching labeled health data: \(error)")
@@ -170,8 +175,8 @@ struct ChallengeMatchupView: View {
                 }
                 
                 Text("Scoring Log").font(.title)
-                ActivityHistoryList(
-                    activities: viewModel.challengeActivities
+                HealthDataScroll(
+                    data: viewModel.challengeActivities
                 )
             } else {
                 ProgressView("Loading match...")
@@ -258,11 +263,6 @@ struct FantasyTeam {
     let players: [ChallengeParticipantJoinUsers]
 }
 
-struct LabeledHealthSample: Identifiable {
-    var id: String { sample.sampleId }
-    let sample: HealthSample
-    let name: String? // Optional
-}
 #Preview {
     PreviewWrapper {
         ChallengeMatchupView(

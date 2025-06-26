@@ -20,7 +20,7 @@ struct ScoreHistoryView: View {
     @EnvironmentObject var healthManager: HealthManager
     @EnvironmentObject var appUser: AppUser
 
-    @State private var healthData: [HealthSample] = []
+    @State private var healthData: [HealthSession] = []
     @State private var showScoringInfo = false
         
     var body: some View {
@@ -65,9 +65,9 @@ struct ScoreHistoryView: View {
             Divider()
             
             // MARK: Scrollable Activity History
-            ActivityHistoryList(
-                activities: healthData.map {
-                    LabeledHealthSample(sample: $0, name: nil)
+            HealthDataScroll(
+                data: healthData.map {
+                    LabeledHealthSession(sample: $0, name: nil)
                 }
             )
         }
@@ -76,20 +76,7 @@ struct ScoreHistoryView: View {
         .onAppear {
             Task {
                 do {
-#if targetEnvironment(simulator)
-                    DispatchQueue.main.async {
-                        self.healthData = [
-                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
-                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
-                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
-                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
-                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100),
-                            HealthSample(sampleId: "", userId: "", quantityType: "", distanceMeters: 100, startTime: .now, endTime: .now, durationSeconds: 100)
-                        ]
-                    }
-#else
-                    let session = try await supabase.auth.session
-                    let userId = session.user.id
+                    let userId = appUser.user.id
                     
                     let response: PostgrestResponse<[HealthSample]> = try await supabase
                         .from("health_data")
@@ -98,10 +85,11 @@ struct ScoreHistoryView: View {
                         .order("end_time", ascending: false)
                         .execute()
                     
+                    let sessions = groupIntoSessions(samples: response.value)
+                    
                     DispatchQueue.main.async {
-                        self.healthData = response.value
+                        self.healthData = sessions
                     }
-#endif
                 } catch {
                     print("❌ Error fetching health data: \(error)")
                 }
@@ -156,5 +144,6 @@ struct ScoringInfoView: View {
 #Preview {
     PreviewWrapper {
         return ScoreHistoryView()
+            .appBackground()
     }
 }

@@ -63,6 +63,8 @@ struct MainAppView: View {
         .onAppear {
             Task {
                 do {
+                    await healthManager.syncAllHealthData(appUser: appUser)
+
                     let response: PostgrestResponse<[ChallengeWrapper]> = try await supabase
                         .from("challenge_participants")
                         .select("challenge:challenges(*)")
