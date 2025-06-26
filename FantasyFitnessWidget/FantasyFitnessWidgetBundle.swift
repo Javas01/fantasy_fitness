@@ -11,9 +11,8 @@ import SwiftUI
 @main
 struct FantasyFitnessWidgetBundle: WidgetBundle {
     var body: some Widget {
-        FantasyFitnessWidget()
+        ChallengeProgressWidget()
         PlayerLevelWidget()
-        FantasyFitnessWidgetControl()
-        FantasyFitnessWidgetLiveActivity()
+//        FantasyFitnessWidgetLiveActivity() TODO: build live activity
     }
 }

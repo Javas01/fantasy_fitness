@@ -49,7 +49,6 @@ class AppUser: ObservableObject {
     }
     
     func update(with newUser: FFUser) {
-        print(newUser)
         DispatchQueue.main.async {
             self.user = newUser
         }

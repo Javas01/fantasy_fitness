@@ -1,59 +1,73 @@
 import WidgetKit
+import PostgREST
 import SwiftUI
 
 // MARK: - Timeline Entry
 struct FFEntry: TimelineEntry {
     let date: Date
     let challenge: Challenge
-    let teamAProjection: Double
-    let teamBProjection: Double
 }
 
 // MARK: - Timeline Provider
 struct FFProvider: TimelineProvider {
-    
     func placeholder(in context: Context) -> FFEntry {
-        FFEntry(
-            date: Date(),
-            challenge: testChallenge,
-            teamAProjection: 5600,
-            teamBProjection: 4400
-        )
+        FFEntry(date: Date(), challenge: testChallenge)
     }
     
     func getSnapshot(in context: Context, completion: @escaping (FFEntry) -> Void) {
-        let entry = FFEntry(
-            date: Date(),
-            challenge: testChallenge,
-            teamAProjection: 5600,
-            teamBProjection: 4400
-        )
+        let entry = FFEntry(date: Date(), challenge: testChallenge)
         completion(entry)
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<FFEntry>) -> Void) {
-        let entry = FFEntry(
-            date: Date(),
-            challenge: testChallenge,
-            teamAProjection: 5600,
-            teamBProjection: 4400
-        )
+        print("📦 Fetching widget challenge from Supabase")
         
-        // Refresh in 30 minutes
-        let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(1800)))
-        completion(timeline)
+        let sharedDefaults = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")
+        
+        guard let idString = sharedDefaults?.string(forKey: "starred_challenge_id"),
+              let challengeId = UUID(uuidString: idString) else {
+            print("⚠️ No starred_challenge_id found, using fallback")
+            let entry = FFEntry(date: .now, challenge: testChallenge)
+            let timeline = Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(1800)))
+            return completion(timeline)
+        }
+        
+        Task {
+            do {
+                let response: PostgrestResponse<[Challenge]> = try await supabase
+                    .from("challenges")
+                    .select()
+                    .eq("id", value: challengeId.uuidString)
+                    .execute()
+                
+                if let challenge = response.value.first {
+                    print("✅ Challenge fetched from Supabase: \(challenge.id)")
+                    let entry = FFEntry(date: .now, challenge: challenge)
+                    let timeline = Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(1800)))
+                    completion(timeline)
+                } else {
+                    print("❌ No challenge found with ID: \(challengeId)")
+                    let entry = FFEntry(date: .now, challenge: testChallenge)
+                    let timeline = Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(1800)))
+                    completion(timeline)
+                }
+            } catch {
+                print("❌ Error fetching challenge from Supabase: \(error)")
+                let entry = FFEntry(date: .now, challenge: testChallenge)
+                let timeline = Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(1800)))
+                completion(timeline)
+            }
+        }
     }
 }
 
 // MARK: - Widget View
-struct FantasyFitnessWidgetEntryView: View {
+struct ChallengeProgressWidgetEntryView: View {
     var entry: FFProvider.Entry
     
     var body: some View {
         ChallengeProgressWidgetView(
             challenge: entry.challenge,
-            teamAProjection: entry.teamAProjection,
-            teamBProjection: entry.teamBProjection
         )
         .padding()
         .containerBackground(for: .widget) {
@@ -70,76 +84,94 @@ struct FantasyFitnessWidgetEntryView: View {
 }
 
 // MARK: - Main Widget Config
-struct FantasyFitnessWidget: Widget {
-    let kind: String = "FantasyFitnessWidget"
+struct ChallengeProgressWidget: Widget {
+    let kind: String = "ChallengeProgressWidget"
     
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: FFProvider()) { entry in
-            FantasyFitnessWidgetEntryView(entry: entry)
+            ChallengeProgressWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("FantasyFitness Challenge")
         .description("See how your team is stacking up in the current challenge.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .supportedFamilies([.systemMedium])
     }
 }
 
-struct Challenge: Codable, Hashable {
-    let id: UUID
-    let name: String
-    let challengeType: ChallengeType
-    let teamAName: String
-    let teamBName: String
-    let teamAScore: Double
-    let teamBScore: Double
-    let goal: Int?
-    let teamALogo: String
-    let teamBLogo: String
+enum ChallengeType: String, Codable, CaseIterable, Identifiable {
+    case goal = "goal"
+    case week = "week"
+    var id: String { self.rawValue }
+}
+enum ChallengeStatus: String, Codable, CaseIterable, Identifiable {
+    case pending = "pending"
+    case active = "active"
+    case completed = "completed"
+    var id: String { self.rawValue }
 }
 
-enum ChallengeType: String, Codable {
-    case week, goal
+struct Challenge: Identifiable, Codable {
+    let id: UUID
+    let size: Int
+    let challengeType: ChallengeType
+    let goal: Int?
+    let startDate: Date
+    let endDate: Date?
+    var teamAName: String = "Team A"
+    var teamBName: String = "Team B"
+    var teamAScore: Double = 0
+    var teamBScore: Double = 0
+    var teamALogo: String = "avatar_0_0"
+    var teamBLogo: String = "avatar_0_1"
+    var status: ChallengeStatus = .pending
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case goal
+        case startDate = "start_date"
+        case endDate = "end_date"
+        case challengeType = "challenge_type"
+        case size
+        case teamAName = "team_a_name"
+        case teamBName = "team_b_name"
+        case teamAScore = "team_a_score"
+        case teamBScore = "team_b_score"
+        case teamALogo = "team_a_logo"
+        case teamBLogo = "team_b_logo"
+        case status
+    }
 }
 
 // MARK: - Preview
 let testChallenge = Challenge(
-    id: UUID(),
-    name: "WHY",
+    id: UUID(uuidString: "147b7689-f5de-4779-af94-005e24056bef")!,
+    size: 1,
     challengeType: .goal,
-    teamAName: "Jaw",
-    teamBName: "Mak",
-    teamAScore: 320,
-    teamBScore: 280,
-    goal: 10000,
-    teamALogo: "avatar_0_0",
-    teamBLogo: "avatar_0_1",
+    goal: 500,
+    startDate: Calendar.current.date(byAdding: .day, value: -1, to: .now)!,
+    endDate: .now,
+    status: .active
 )
 
 #Preview(as: .systemMedium) {
-    FantasyFitnessWidget()
+    ChallengeProgressWidget()
 } timeline: {
-    FFEntry(date: .now, challenge: testChallenge, teamAProjection: 5600, teamBProjection: 4400)
+    FFEntry(date: .now, challenge: testChallenge)
 }
 
 
 struct ChallengeProgressWidgetView: View {
     let challenge: Challenge
-    let teamAProjection: Double
-    let teamBProjection: Double
-    
-    private var totalProjection: Double {
-        teamAProjection + teamBProjection
-    }
     
     private var teamAPercent: Double {
         if (challenge.challengeType == ChallengeType.week) {
-            return totalProjection == 0 ? 0.5 : teamAProjection / totalProjection
+            return 0.0
         } else {
             return challenge.teamAScore / Double(challenge.goal!)
         }
     }
     private var teamBPercent: Double {
         if (challenge.challengeType == ChallengeType.week) {
-            return totalProjection == 0 ? 0.5 : teamBProjection / totalProjection
+            return 0.0
         } else {
             return challenge.teamBScore / Double(challenge.goal!)
         }    }
@@ -221,11 +253,11 @@ struct ChallengeProgressWidgetView: View {
             }
             HStack {
                 if (challenge.challengeType == ChallengeType.week) {
-                    Text("Proj \(String(format: "%.1f", teamAProjection))")
+                    Text("Proj \(String(format: "%.1f", 0.0))")
                         .font(.footnote)
                         .foregroundColor(.gray)
                     Spacer()
-                    Text("Proj \(String(format: "%.1f", teamBProjection))")
+                    Text("Proj \(String(format: "%.1f", 0.0))")
                         .font(.footnote)
                         .foregroundColor(.gray)
                 } else {

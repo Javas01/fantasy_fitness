@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 import UserNotifications
 import OneSignalFramework
+import WidgetKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -26,7 +27,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         // ✅ Save player ID if available
         if let playerId = OneSignal.User.pushSubscription.id {
             print("✅ OneSignal Player ID: \(playerId)")
-            print(OneSignal.User.pushSubscription.optedIn)
             print("Push Token: \(OneSignal.User.pushSubscription.token ?? "nil")")
             
             Task {
@@ -82,6 +82,7 @@ struct FantasyFitnessApp: App {
                 .environmentObject(appUser)
                 .environmentObject(healthManager)
                 .onAppear {
+                    WidgetCenter.shared.reloadAllTimelines()
                     Task {
                         do {
                             let session = try await supabase.auth.session
@@ -162,12 +163,12 @@ func sendNotificationTokenToSupabase(token: String) async {
     )
     
     do {
-        let response = try await supabase
+        let _ = try await supabase
             .from("notification_tokens")
             .upsert(newToken, onConflict: "user_id,token")
             .execute()
         
-        print("✅ Token sent to Supabase: \(response)")
+        print("✅ Token sent to Supabase")
     } catch {
         print("❌ Error sending token to Supabase: \(error)")
     }

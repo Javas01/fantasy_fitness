@@ -9,10 +9,7 @@ import SwiftUI
 
 struct ChallengeCardView: View {
     let challenge: Challenge
-    
-    var teamAProjection: Double = 124.1
-    var teamBProjection: Double = 129.0
-    
+        
     var body: some View {
         VStack(spacing: 12) {
             HStack {
@@ -48,8 +45,6 @@ struct ChallengeCardView: View {
             
             ChallengeProgressView(
                 challenge: challenge,
-                teamAProjection: teamAProjection,
-                teamBProjection: teamBProjection
             )
         }
         .padding(

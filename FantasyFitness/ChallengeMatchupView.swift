@@ -8,6 +8,7 @@
 import SwiftUI
 import PostgREST
 import Supabase
+import WidgetKit
 
 struct ChallengeParticipantSlim: Decodable {
     let userId: UUID
@@ -35,11 +36,16 @@ class ChallengeMatchupViewModel: ObservableObject {
         }
     }
     
+    func saveChallengeAsWidget(_ challenge: Challenge) {
+        let userDefaults = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")
+        userDefaults?.set(challenge.id.uuidString, forKey: "starred_challenge_id")
+        WidgetCenter.shared.reloadTimelines(ofKind: "ChallengeProgressWidget")
+    }
+    
     func fetchLabeledHealthDataForChallenge() async {
         var labeledSamples: [LabeledHealthSession] = []
         
         do {
-            print(challenge.status)
             guard challenge.status == .active else { return }
             // 1. Fetch all participants (with name and user_id)
             let participantResponse: PostgrestResponse<[ChallengeParticipantSlim]> = try await supabase
@@ -51,7 +57,6 @@ class ChallengeMatchupViewModel: ObservableObject {
             let participants = participantResponse.value
             let userIds = participants.map { $0.userId.uuidString.lowercased() }
             let userIdToName = Dictionary(uniqueKeysWithValues: participants.map { ($0.userId.uuidString.lowercased(), $0.name) })
-            print(userIds)
 
             // 2. Fetch all health samples within challenge range for those users
             let sampleResponse: PostgrestResponse<[HealthSample]> = try await supabase
@@ -63,7 +68,6 @@ class ChallengeMatchupViewModel: ObservableObject {
                 .execute()
             
             let samples = sampleResponse.value
-            print(samples)
             
             let grouped: [String: [HealthSample]] = Dictionary(grouping: samples, by: { $0.userId })
             let sessions = grouped.flatMap { (_, userSamples) in
@@ -78,9 +82,7 @@ class ChallengeMatchupViewModel: ObservableObject {
         } catch {
             print("❌ Error fetching labeled health data: \(error)")
         }
-        
-        print(labeledSamples)
-        
+                
         self.challengeActivities = labeledSamples
     }
     
@@ -91,7 +93,6 @@ class ChallengeMatchupViewModel: ObservableObject {
                 .select("*, users(*)") // join users
                 .eq("challenge_id", value: challenge.id.uuidString)
                 .execute()
-            print(participants.value)
             let teamA = participants.value.filter { $0.team == "a" }
             let teamB = participants.value.filter { $0.team == "b" }
             
@@ -120,7 +121,8 @@ struct ChallengeMatchupView: View {
     @StateObject private var viewModel: ChallengeMatchupViewModel
     @State private var isSheetOpen = false
     @State private var didInviteUser = false
-    
+    @State private var isWidgetChallenge: Bool = false
+
     init(challenge: Challenge) {
         _viewModel = StateObject(wrappedValue: ChallengeMatchupViewModel(challenge: challenge))
         self.challenge = challenge
@@ -138,8 +140,6 @@ struct ChallengeMatchupView: View {
                 
                 ChallengeProgressView(
                     challenge: challenge,
-                    teamAProjection: 200,
-                    teamBProjection: 300
                 )
                 
                 Divider()
@@ -182,7 +182,23 @@ struct ChallengeMatchupView: View {
                 ProgressView("Loading match...")
             }
         }
-        .padding(5)
+        .padding(.horizontal, 5)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    viewModel.saveChallengeAsWidget(challenge)
+                    isWidgetChallenge = true
+                } label: {
+                    Image(systemName: isWidgetChallenge ? "star.fill" : "star")
+                        .foregroundColor(.yellow)
+                }
+            }
+        }
+        .onAppear {
+            let id = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")?
+                .string(forKey: "starred_challenge_id")
+            isWidgetChallenge = id == challenge.id.uuidString
+        }
         .appBackground()
         .sheet(isPresented: $isSheetOpen) {
             UserPickerView(didInvite: $didInviteUser, challenge: challenge)
@@ -207,52 +223,6 @@ struct ChallengeMatchupView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(width: 100)
-    }
-}
-
-
-
-struct PlayerRowView: View {
-    let player: ChallengeParticipantJoinUsers
-    let alignLeft: Bool
-        
-    var body: some View {
-        if(alignLeft) {
-            Image(player.users.avatarName)
-                .resizable()
-                .frame(width: 40, height: 40)
-        }
-        if !alignLeft {
-            Text("\(player.score, specifier: "%.1f")")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundStyle(.orange)
-            Spacer()
-        }
-        VStack(alignment: alignLeft ? .leading : .trailing, spacing: 4) {
-            Text(player.name)
-                .fontWeight(.semibold)
-            Text(playerDisplayInfo)
-                .font(.caption)
-                .foregroundColor(.gray)
-        }
-        .frame(width: 80, alignment: alignLeft ? .leading : .trailing)
-        if alignLeft {
-            Spacer()
-            Text("\(player.score, specifier: "%.1f")")
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundStyle(.orange)
-        }
-        if(!alignLeft) {
-            Image(player.users.avatarName)
-                .resizable()
-                .frame(width: 40, height: 40)
-        }
-    }
-    
-    var playerDisplayInfo: String {
-        "Athlete"
     }
 }
 

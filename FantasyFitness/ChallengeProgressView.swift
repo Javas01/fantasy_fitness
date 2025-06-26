@@ -10,26 +10,21 @@ import SwiftUI
 
 struct ChallengeProgressView: View {
     let challenge: Challenge
-    let teamAProjection: Double
-    let teamBProjection: Double
 
-    private var totalProjection: Double {
-        teamAProjection + teamBProjection
-    }
-    
     private var teamAPercent: Double {
         if (challenge.challengeType == ChallengeType.week) {
-            return totalProjection == 0 ? 0.5 : teamAProjection / totalProjection
+            return 0.0
         } else {
             return challenge.teamAScore / Double(challenge.goal!)
         }
     }
     private var teamBPercent: Double {
         if (challenge.challengeType == ChallengeType.week) {
-            return totalProjection == 0 ? 0.5 : teamBProjection / totalProjection
+            return 0.0
         } else {
             return challenge.teamBScore / Double(challenge.goal!)
-        }    }
+        }
+    }
 
 
     var body: some View {
@@ -75,11 +70,11 @@ struct ChallengeProgressView: View {
         }
         HStack {
             if (challenge.challengeType == ChallengeType.week) {
-                Text("Proj \(String(format: "%.1f", teamAProjection))")
+                Text("Proj \(String(format: "%.1f", 0.0))")
                     .font(.footnote)
                     .foregroundColor(.gray)
                 Spacer()
-                Text("Proj \(String(format: "%.1f", teamBProjection))")
+                Text("Proj \(String(format: "%.1f", 0.0))")
                     .font(.footnote)
                     .foregroundColor(.gray)
             } else {

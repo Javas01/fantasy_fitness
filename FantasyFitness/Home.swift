@@ -28,21 +28,11 @@ struct HomeView: View {
                     ) {
                         FFScoreProgressView(ffScore: appUser.user.ffScore)
                     }
-                    // MARK: Daily Challenge Section
-                    Text("Daily Quest")
-                        .font(.headline)
-                    DailyChallengeView(challenge: DailyChallenge(
-                        title: "Run 1 mile today",
-                        progress: 0.6,
-                        goal: 1.0,
-                        rewardFF: 25
-                    ))
-                    
                     // MARK: Active Challenges Section
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Active Challenges")
                             .font(.headline)
-                        ForEach(activeChallenges.prefix(2)) { challenge in
+                        ForEach(activeChallenges.prefix(4)) { challenge in
                             NavigationLink(destination: ChallengeMatchupView(challenge: challenge).environmentObject(appUser)) {
                                 ChallengeCardView(challenge: challenge)
                                     .environmentObject(appUser)

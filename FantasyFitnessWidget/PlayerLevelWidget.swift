@@ -49,6 +49,8 @@ struct PlayerLevelProvider: TimelineProvider {
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<PlayerLevelEntry>) -> Void) {
+        print("HEY YOU GUYS 2")
+
         let userDefaults = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")
         
         guard let userIdString = userDefaults?.string(forKey: "widget_user_id"),

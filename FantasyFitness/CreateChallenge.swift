@@ -67,7 +67,6 @@ struct CreateChallengeView: View {
                                 .insert(newChallenge)
                                 .select()
                                 .execute()
-                            print(response)
                             guard let insertedChallenge = response.value.first else {
                                 print("❌ Failed to fetch inserted challenge ID.")
                                 return
