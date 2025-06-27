@@ -27,3 +27,27 @@ extension Date {
         return Date.shortTimeFormatter.string(from: self)
     }
 }
+
+struct AppBackgroundModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        ZStack {
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color(red: 215/255, green: 236/255, blue: 250/255),
+                    Color(red: 190/255, green: 224/255, blue: 245/255)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            
+            content
+        }
+    }
+}
+
+extension View {
+    func appBackground() -> some View {
+        self.modifier(AppBackgroundModifier())
+    }
+}

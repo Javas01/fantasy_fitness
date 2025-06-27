@@ -9,7 +9,7 @@ import SwiftUI
 import AuthenticationServices
 import Supabase
 
-private func handleAppleLogin(result: Result<ASAuthorization, Error>) {
+private func handleAppleLogin(result: Result<ASAuthorization, Error>, appUser: AppUser) {
     switch result {
         case .success(let authResults):
             if let appleIDCredential = authResults.credential as? ASAuthorizationAppleIDCredential,
@@ -31,9 +31,7 @@ private func handleAppleLogin(result: Result<ASAuthorization, Error>) {
                             appleIDCredential.fullName?.givenName,
                             appleIDCredential.fullName?.familyName
                         ].compactMap { $0 }.joined(separator: " ")
-                        
-                        print(fullName)
-                        
+                                                
                         let response: PostgrestResponse<[FFUser]> = try await supabase
                             .from("users")
                             .select("*")
@@ -54,8 +52,10 @@ private func handleAppleLogin(result: Result<ASAuthorization, Error>) {
                                 lastSync: Calendar.current.date(byAdding: .hour, value: -24, to: .now)!
                             )
                             try await supabase.from("users").insert(newUser).execute()
+                            await appUser.loadSession()
                         } else {
                             print("User already exists")
+                            await appUser.loadSession()
                         }
                     } catch {
                         print("Supabase login failed: \(error.localizedDescription)")
@@ -69,8 +69,7 @@ private func handleAppleLogin(result: Result<ASAuthorization, Error>) {
 }
 
 struct LoginView: View {
-    @Binding var isSignedIn: Bool
-
+    @EnvironmentObject var appUser: AppUser
     @State private var selection = 0
     
     let onboardingSlides = [
@@ -108,11 +107,6 @@ struct LoginView: View {
             Spacer()
             
             #if targetEnvironment(simulator)
-            Button("Skip") {
-                DispatchQueue.main.async {
-                    isSignedIn = true
-                }
-            }
             #endif
 
             // Sign In With Apple Button
@@ -122,10 +116,7 @@ struct LoginView: View {
                     request.requestedScopes = [.fullName, .email]
                 },
                 onCompletion: { result in
-                    handleAppleLogin(result: result)
-                    DispatchQueue.main.async {
-                        isSignedIn = true
-                    }
+                    handleAppleLogin(result: result, appUser: appUser)
                 }
             )
             .signInWithAppleButtonStyle(.whiteOutline)
@@ -141,6 +132,10 @@ struct LoginView: View {
 
 // MARK: - Preview
 
-#Preview {
-    LoginView(isSignedIn: .constant(false))
+struct LoginView_Previews: PreviewProvider {
+    static var previews: some View {
+        PreviewWrapper {
+            LoginView()
+        }
+    }
 }

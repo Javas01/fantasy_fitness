@@ -40,7 +40,7 @@ struct FFScoreProgressView: View {
                 .shadow(color: .orange, radius: 4)
                 .frame(height: 10)
             
-            Text("\(String(format: "%.1f", animatedScore)) / \(nextLevel) FF")
+            Text("\(String(format: "%.1f", animatedScore)) / \(nextLevel) FF Level")
                 .font(.footnote)
                 .foregroundColor(.gray)
                 .frame(maxWidth: .infinity)

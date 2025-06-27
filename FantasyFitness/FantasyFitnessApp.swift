@@ -78,7 +78,7 @@ struct FantasyFitnessApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(isSignedIn: $isSignedIn)
+            RootView()
                 .environmentObject(appUser)
                 .environmentObject(healthManager)
                 .onAppear {
@@ -94,24 +94,19 @@ struct FantasyFitnessApp: App {
                         }
                     }
                 }
-//                .onAppear(perform: {
-//                    // this makes sure that we are setting the app to the app delegate as soon as the main view appears
-//                    appDelegate.app = self
-//                })
         }
         .modelContainer(sharedModelContainer)
     }
 }
 
 struct RootView: View {
-    @Binding var isSignedIn: Bool
     @EnvironmentObject var appUser: AppUser
     
     var body: some View {
-        if isSignedIn {
+        if appUser.isSignedIn {
             ContentView()
         } else {
-            LoginView(isSignedIn: $isSignedIn)
+            LoginView()
         }
     }
 }

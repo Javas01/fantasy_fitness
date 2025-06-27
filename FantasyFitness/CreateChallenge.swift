@@ -60,7 +60,6 @@ struct CreateChallengeView: View {
                                 team_a_name: appUser.name,
                                 team_a_logo: appUser.avatarName
                             )
-                            print(newChallenge)
 
                             let response: PostgrestResponse<[Challenge]> = try await supabase
                                 .from("challenges")

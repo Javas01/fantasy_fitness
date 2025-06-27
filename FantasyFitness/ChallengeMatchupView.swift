@@ -122,6 +122,7 @@ struct ChallengeMatchupView: View {
     @State private var isSheetOpen = false
     @State private var didInviteUser = false
     @State private var isWidgetChallenge: Bool = false
+    @State private var showScoringInfo = false
 
     init(challenge: Challenge) {
         _viewModel = StateObject(wrappedValue: ChallengeMatchupViewModel(challenge: challenge))
@@ -174,7 +175,34 @@ struct ChallengeMatchupView: View {
                     Divider()
                 }
                 
-                Text("Scoring Log").font(.title)
+                HStack {
+                    Text("Scoring Log").font(.title)
+                    Button {
+                        showScoringInfo = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 24)) // sets icon size
+                    }
+                    .popover(isPresented: $showScoringInfo) {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("How Scoring Works")
+                                .font(.headline)
+                            
+                            Text("- 1 FF per 100 meters")
+                            Text("- Speed bonus multiplies your score:")
+                            Text("  • <1.5 m/s → ×1.0")
+                            Text("  • 1.5 – 2.5 m/s → ×1.25")
+                            Text("  • 2.5 – 3.5 m/s → ×1.5")
+                            Text("  • 3.5 – 4.5 m/s → ×2.0")
+                            Text("  • >4.5 m/s → ×2.5")
+                        }
+                        .presentationCompactAdaptation(.popover)
+                        .padding()
+                        .frame(width: 250)
+                    }
+                    .accessibilityLabel("How scoring works")
+                }
+                
                 HealthDataScroll(
                     data: viewModel.challengeActivities
                 )

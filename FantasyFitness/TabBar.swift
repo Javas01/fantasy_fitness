@@ -60,11 +60,13 @@ struct MainAppView: View {
                 .environmentObject(healthManager)
                 .appBackground()
         })
+        .refreshable {
+            await healthManager.syncAllHealthData(appUser: appUser)
+            Haptics.success()
+        }
         .onAppear {
             Task {
                 do {
-                    await healthManager.syncAllHealthData(appUser: appUser)
-
                     let response: PostgrestResponse<[ChallengeWrapper]> = try await supabase
                         .from("challenge_participants")
                         .select("challenge:challenges(*)")
@@ -105,7 +107,7 @@ struct MainAppView: View {
             case .activity:
                 LeaderboardView()
             case .profile:
-                EmptyView()
+                ProfileView()
         }
     }
 }

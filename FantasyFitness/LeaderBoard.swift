@@ -31,7 +31,6 @@ final class LeaderboardViewModel: ObservableObject {
             let fetchedPlayers = response.value
             
             DispatchQueue.main.async {
-                print(fetchedPlayers)
                 self.players = fetchedPlayers
             }
         } catch {

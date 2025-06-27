@@ -77,6 +77,20 @@ extension HealthSession {
         
         return base * multiplier
     }
+    var multiplier: Double {
+        let speed = averageSpeed
+        
+        let multiplier: Double
+        switch speed {
+            case ..<1.5: multiplier = 1.0
+            case ..<2.5: multiplier = 1.25
+            case ..<3.5: multiplier = 1.5
+            case ..<4.5: multiplier = 2.0
+            default:     multiplier = 2.5
+        }
+        
+        return multiplier
+    }
 }
 extension HealthSession {
     var formattedDistance: String {

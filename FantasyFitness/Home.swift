@@ -45,10 +45,10 @@ struct HomeView: View {
                 }
                 .padding()
         }
-        .refreshable {
-            await healthManager.syncAllHealthData(appUser: appUser)
-            Haptics.success()
-        }
+//        .refreshable {
+//            await healthManager.syncAllHealthData(appUser: appUser)
+//            Haptics.success()
+//        }
         .appBackground()
     }
 }

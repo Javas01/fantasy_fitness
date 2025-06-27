@@ -43,12 +43,10 @@ struct PlayerLevel: View {
                     .resizable()
                     .frame(width: 100, height: 100)
                 
-                Text(ffTitle(for: appUser.user.ffScore))
+                Text(appUser.user.name)
                     .font(.title2.bold())
-                
-                (
-                    Text("FF").bold() + Text("itness Level")
-                )
+     
+                Text(ffTitle(for: appUser.user.ffScore))
                 .font(.subheadline)
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
@@ -79,6 +77,14 @@ struct PlayerLevel: View {
                 .padding(10.0)
             }
             .frame(width: 100)
+        }
+    }
+}
+
+struct PlayerLevelView_Previews: PreviewProvider {
+    static var previews: some View {
+        PreviewWrapper {
+            ProfileView()
         }
     }
 }
