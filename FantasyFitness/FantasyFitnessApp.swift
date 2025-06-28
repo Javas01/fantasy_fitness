@@ -38,6 +38,31 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         
         return true
     }
+    func application(_ application: UIApplication,
+                     didReceiveRemoteNotification userInfo: [AnyHashable : Any],
+                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        
+        print("📬 Received silent push")
+        
+        if let data = userInfo["custom"] as? [String: Any],
+           let additional = data["a"] as? [String: Any],
+           additional["type"] as? String == "widget_update" {
+            WidgetCenter.shared.reloadAllTimelines()
+            print("🔁 Widget refresh triggered from silent push")
+        }
+        
+        completionHandler(.newData)
+    }
+    // ✅ Called when a notification is about to be shown in foreground
+    func onWillDisplay(event: OSNotificationWillDisplayEvent) {
+        print("recieved notif")
+        print(event)
+        if event.notification.additionalData?["type"] as? String == "widget_update" {
+            WidgetCenter.shared.reloadAllTimelines()
+            print("🔁 Widget refresh triggered from foreground notification")
+            event.preventDefault()
+        }
+    }
 }
 
 @main

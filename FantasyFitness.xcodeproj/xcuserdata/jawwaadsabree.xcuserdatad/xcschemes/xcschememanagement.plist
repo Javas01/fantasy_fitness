@@ -7,17 +7,35 @@
 		<key>FantasyFitness.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>2</integer>
 		</dict>
 		<key>FantasyFitnessWidgetExtension.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>1</integer>
+			<integer>0</integer>
 		</dict>
 		<key>OneSignalNotificationServiceExtension.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>1</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>2C1440912E0C687400246730</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>2C20D0A22E01279A00590522</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>2C20D0E82E023F0700590522</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

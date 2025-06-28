@@ -29,9 +29,12 @@ struct UpdateUserPayload: Codable {
 class HealthManager: ObservableObject {
     @Published var recentSamples: [HealthSession] = []
     let healthStore = HKHealthStore()
+    private var observersRegistered: Bool = false
     
     func syncAllHealthData(appUser: AppUser) async {
-        guard await requestAuthorization() else { return }
+        guard await requestAuthorization(appUser: appUser) else { return }
+        
+        registerHealthObserversIfNeeded()
         
         let allSamples = await fetchAllSupportedSamples(appUser: appUser)
         guard !allSamples.isEmpty else { return }
@@ -69,7 +72,7 @@ class HealthManager: ObservableObject {
                 appUser.update(with: updated)
             }
             print("updated user last sync and ff score")
-            WidgetCenter.shared.reloadTimelines(ofKind: "PlayerLevelWidget")
+            WidgetCenter.shared.reloadAllTimelines()
             
             let challengeResponse: PostgrestResponse<[ChallengeParticipantWithChallenge]> = try await supabase
                 .from("challenge_participants")
@@ -81,6 +84,38 @@ class HealthManager: ObservableObject {
             let activeChallenges = challengeResponse.value.compactMap { $0.challenges }
             for challenge in activeChallenges {
                 await self.updateScore(appUser: appUser, for: challenge, with: allSamples)
+                
+                do {
+                    let allResp: PostgrestResponse<[ChallengeParticipant]> = try await supabase
+                        .from("challenge_participants")
+                        .select()
+                        .eq("challenge_id", value: challenge.id)
+                        .execute()
+                    
+                    let userIds = allResp.value.map { $0.userId }
+                    
+                    struct Token: Decodable {
+                        let token: String
+                    }
+                    let tokenResponse: PostgrestResponse<[Token]> = try await supabase
+                        .from("notification_tokens")
+                        .select("token")
+                        .in("user_id", values: userIds)
+                        .execute()
+                    
+                    // 3. Extract player IDs
+                    let tokens = tokenResponse.value.map { $0.token }
+                    
+                    // 4. Send the push
+                    guard !tokens.isEmpty else {
+                        print("⚠️ No tokens found")
+                        return
+                    }
+                    
+                    try await sendWidgetUpdatePush(to: tokens)
+                } catch {
+                    
+                }
             }
             
         } catch {
@@ -88,14 +123,13 @@ class HealthManager: ObservableObject {
         }
     }
     
-    private func requestAuthorization() async -> Bool {
-        guard HKHealthStore.isHealthDataAvailable(),
-              let type = HKObjectType.quantityType(forIdentifier: .distanceWalkingRunning) else {
-            return false
-        }
+    private func requestAuthorization(appUser: AppUser) async -> Bool {
+        guard HKHealthStore.isHealthDataAvailable() else { return false }
+        
+        let readTypes = Set(supportedTypes.compactMap { HKObjectType.quantityType(forIdentifier: $0) })
         
         return await withCheckedContinuation { continuation in
-            healthStore.requestAuthorization(toShare: [], read: [type]) { success, _ in
+            healthStore.requestAuthorization(toShare: [], read: readTypes) { success, _ in
                 continuation.resume(returning: success)
             }
         }
@@ -211,5 +245,66 @@ class HealthManager: ObservableObject {
         } catch {
             print("❌ Challenge update error: \(error)")
         }
+    }
+    private func loadCachedAppUserFromSharedDefaults() async -> AppUser? {
+        let userDefaults = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")
+        guard let idString = userDefaults?.string(forKey: "widget_user_id"),
+              let uuid = UUID(uuidString: idString) else {
+            print("❌ Couldn’t get cached user ID")
+            return nil
+        }
+        
+        do {
+            let resp: PostgrestResponse<[FFUser]> = try await supabase
+                .from("users")
+                .select("*")
+                .eq("id", value: uuid.uuidString)
+                .limit(1)
+                .execute()
+            
+            guard let user = resp.value.first else { return nil }
+            return AppUser(user: user)
+        } catch {
+            print("❌ Failed to fetch cached AppUser: \(error)")
+            return nil
+        }
+    }
+    
+    @MainActor
+    func registerHealthObserversIfNeeded() {
+        print("👀 Registering health observers...")
+        if observersRegistered { return }
+        
+        let readTypes = Set(supportedTypes.compactMap { HKObjectType.quantityType(forIdentifier: $0) })
+        
+        for type in readTypes {
+            self.healthStore.enableBackgroundDelivery(for: type, frequency: .immediate) { delivered, error in
+                if delivered {
+                    print("✅ Background delivery enabled for \(type.identifier)")
+                } else {
+                    print("❌ Failed background delivery: \(error?.localizedDescription ?? "")")
+                }
+            }
+            
+            let query = HKObserverQuery(sampleType: type, predicate: nil) { _, completionHandler, error in
+                if let error = error {
+                    print("❌ Observer query error for \(type.identifier): \(error)")
+                } else {
+                    Task {
+                        print("📥 Background HealthKit update triggered for \(type.identifier)")
+                        if let appUser = await self.loadCachedAppUserFromSharedDefaults() {
+                            await self.syncAllHealthData(appUser: appUser)
+                        } else {
+                            print("❌ Background sync skipped — no cached AppUser found")
+                        }
+                    }
+                }
+                completionHandler()
+            }
+            
+            self.healthStore.execute(query)
+        }
+        
+        observersRegistered = true
     }
 }
