@@ -39,10 +39,12 @@ class HealthManager: ObservableObject {
         let allSamples = await fetchAllSupportedSamples(appUser: appUser)
         guard !allSamples.isEmpty else { return }
         let sessions = groupIntoSessions(samples: allSamples)
-        self.recentSamples.append(contentsOf: sessions)
+        self.recentSamples = sessions
         
         do {
-            try await supabase.from("health_data").insert(allSamples).execute()
+            try await supabase.from("health_data")
+                .upsert(allSamples, onConflict: "user_id,sample_id")
+                .execute()
             print("inserted health data")
             
             let latestUserResp: PostgrestResponse<[FFUser]> = try await supabase

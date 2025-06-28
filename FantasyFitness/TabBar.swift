@@ -60,10 +60,10 @@ struct MainAppView: View {
                 .environmentObject(healthManager)
                 .appBackground()
         })
-        .refreshable {
-            await healthManager.syncAllHealthData(appUser: appUser)
-            Haptics.success()
-        }
+//        .refreshable {
+//            await healthManager.syncAllHealthData(appUser: appUser)
+//            Haptics.success()
+//        }
         .onAppear {
             Task {
                 do {

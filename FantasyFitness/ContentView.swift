@@ -21,12 +21,13 @@ struct ContentView: View {
                     .environmentObject(appUser)
                     .environmentObject(healthManager)
                     .task {
-                        // Sync Health Data
-                        await healthManager.syncAllHealthData(appUser: appUser)
-                        
-                        // Save user ID to App Group for widget access
-                        let userDefaults = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")
-                        userDefaults?.set(appUser.id.uuidString, forKey: "widget_user_id")
+                        if !appUser.didRunStartupSync, appUser.isSignedIn {
+                            appUser.didRunStartupSync = true
+                            await healthManager.syncAllHealthData(appUser: appUser)
+                            
+                            let userDefaults = UserDefaults(suiteName: "group.com.Jawwaad.FantasyFitness.shared")
+                            userDefaults?.set(appUser.id.uuidString, forKey: "widget_user_id")
+                        }
                     }
             }
         }

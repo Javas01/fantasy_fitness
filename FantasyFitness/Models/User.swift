@@ -54,6 +54,7 @@ struct UpdateProfile: Codable {
 class AppUser: ObservableObject {
     @Published var user: FFUser
     @Published var isSignedIn: Bool = false
+    @Published var didRunStartupSync: Bool = false
     
     init(user: FFUser) {
         self.user = user
