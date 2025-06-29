@@ -53,7 +53,7 @@ struct CreateChallengeView: View {
                                 size: Int(selectedSize),
                                 scoring_type: selectedScoring.lowercased() == "ppr" ? "ppr" : "standard",
                                 challenge_type: selectedType.lowercased() == "goal" ? "goal" : "week",
-                                goal: selectedType.lowercased() == "goal" ? 1000 : nil,
+                                goal: selectedType.lowercased() == "goal" ? 500 : nil,
                                 start_date: startDate,
                                 end_date: nil, // Optional: allow adding later
                                 created_by: appUser.id,

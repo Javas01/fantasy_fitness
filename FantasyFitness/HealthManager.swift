@@ -244,6 +244,64 @@ class HealthManager: ObservableObject {
                 .execute()
             
             print("🧮 Updated \(appUser.id) score in challenge \(challenge.id) to \(totalScore)")
+            if let goal = challenge.goal, teamA >= Double(goal) || teamB >= Double(goal) {
+                struct EndChallengePayload: Codable {
+                    let status: ChallengeStatus
+                    let endDate: Date
+                    enum CodingKeys: String, CodingKey {
+                        case status
+                        case endDate = "end_date"
+                    }
+                }
+                let payload = EndChallengePayload(
+                    status: .completed, endDate: .now
+                )
+                
+                try await supabase
+                    .from("challenges")
+                    .update(payload)
+                    .eq("id", value: challenge.id)
+                    .execute()
+                
+                let userIds = allResp.value.map { $0.userId }
+                
+                struct Token: Decodable {
+                    let token: String
+                }
+                
+                let tokenResponse: PostgrestResponse<[Token]> = try await supabase
+                    .from("notification_tokens")
+                    .select("token")
+                    .in("user_id", values: userIds)
+                    .execute()
+                
+                let tokens = tokenResponse.value.map { $0.token }
+                
+                guard !tokens.isEmpty else {
+                    print("⚠️ No tokens found")
+                    return
+                }
+                
+                // 🏷️ Use challenge.teamAName / challenge.teamBName if your model includes them
+                let teamAName = challenge.teamAName
+                let teamBName = challenge.teamBName
+                
+                let winningTeam: String
+                if teamA == teamB {
+                    winningTeam = "It’s a tie! 🤝"
+                } else if teamA > teamB {
+                    winningTeam = "\(teamAName) Wins 🎉"
+                } else {
+                    winningTeam = "\(teamBName) Wins 🎉"
+                }
+                try await sendPushNotification(
+                    to: tokens,
+                    title: winningTeam,
+                    message: "Your challenge has ended. Check the final scores!"
+                )
+
+                print("🏁 Challenge \(challenge.id) ended (A: \(teamA), B: \(teamB), goal: \(goal))")
+            }
         } catch {
             print("❌ Challenge update error: \(error)")
         }
